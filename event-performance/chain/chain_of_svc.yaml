@@ -1,0 +1,196 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: step1
+  name: step1
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: step1
+  template:
+    metadata:
+      labels:
+        app: step1
+    spec:
+      containers:
+      - name: user-container
+        image: ko://github.com/knix-microfunctions/workflowmesh/event-performance/cmd/worker
+        env:
+        - name: K_SINK
+          value: http://step2/
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: step1
+  name: step1
+  namespace: default
+spec:
+  selector:
+    app: step1
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: step2
+  name: step2
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: step2
+  template:
+    metadata:
+      labels:
+        app: step2
+    spec:
+      containers:
+      - name: user-container
+        image: ko://github.com/knix-microfunctions/workflowmesh/event-performance/cmd/worker
+        env:
+        - name: K_SINK
+          value: http://step3/
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: step2
+  name: step2
+  namespace: default
+spec:
+  selector:
+    app: step2
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: step3
+  name: step3
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: step3
+  template:
+    metadata:
+      labels:
+        app: step3
+    spec:
+      containers:
+      - name: user-container
+        image: ko://github.com/knix-microfunctions/workflowmesh/event-performance/cmd/worker
+        env:
+        - name: K_SINK
+          value: http://step4/
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: step3
+  name: step3
+  namespace: default
+spec:
+  selector:
+    app: step3
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: step4
+  name: step4
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: step4
+  template:
+    metadata:
+      labels:
+        app: step4
+    spec:
+      containers:
+      - name: user-container
+        image: ko://github.com/knix-microfunctions/workflowmesh/event-performance/cmd/worker
+        env:
+        - name: K_SINK
+          value: http://step5/
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: step4
+  name: step4
+  namespace: default
+spec:
+  selector:
+    app: step4
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: step5
+  name: step5
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: step5
+  template:
+    metadata:
+      labels:
+        app: step5
+    spec:
+      containers:
+      - name: user-container
+        image: ko://github.com/knix-microfunctions/workflowmesh/event-performance/cmd/worker
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: step5
+  name: step5
+  namespace: default
+spec:
+  selector:
+    app: step5
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+  sessionAffinity: None
+  type: ClusterIP

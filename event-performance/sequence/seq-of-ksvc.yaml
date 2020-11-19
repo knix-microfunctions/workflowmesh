@@ -1,0 +1,99 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: step1
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/target: "5"
+    spec:
+      containerConcurrency: 10
+      containers:
+        - image: ko://github.com/knix-microfunctions/workflowmesh/event-performance/cmd/function
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: step2
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/target: "5"
+    spec:
+      containerConcurrency: 10
+      containers:
+        - image: ko://github.com/knix-microfunctions/workflowmesh/event-performance/cmd/function
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: step3
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/target: "5"
+    spec:
+      containerConcurrency: 10
+      containers:
+        - image: ko://github.com/knix-microfunctions/workflowmesh/event-performance/cmd/function
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: step4
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/target: "5"
+    spec:
+      containerConcurrency: 10
+      containers:
+        - image: ko://github.com/knix-microfunctions/workflowmesh/event-performance/cmd/function
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: step5
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/target: "5"
+    spec:
+      containerConcurrency: 10
+      containers:
+        - image: ko://github.com/knix-microfunctions/workflowmesh/event-performance/cmd/function
+---
+apiVersion: flows.knative.dev/v1
+kind: Sequence
+metadata:
+  name: sequence
+spec:
+  channelTemplate:
+    apiVersion: messaging.knative.dev/v1
+    kind: InMemoryChannel
+  steps:
+    - ref:
+        apiVersion: serving.knative.dev/v1
+        kind: Service
+        name: step1
+    - ref:
+        apiVersion: serving.knative.dev/v1
+        kind: Service
+        name: step2
+    - ref:
+        apiVersion: serving.knative.dev/v1
+        kind: Service
+        name: step3
+    - ref:
+        apiVersion: serving.knative.dev/v1
+        kind: Service
+        name: step4
+    - ref:
+        apiVersion: serving.knative.dev/v1
+        kind: Service
+        name: step5

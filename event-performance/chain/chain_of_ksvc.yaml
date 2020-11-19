@@ -1,0 +1,82 @@
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: step1
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/target: "5"
+    spec:
+      containerConcurrency: 10
+      containers:
+        - image: ko://github.com/knix-microfunctions/workflowmesh/event-performance/cmd/worker
+          env:
+          - name: K_SINK
+            value: http://step2.default.svc.cluster.local
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: step2
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/target: "5"
+    spec:
+      containerConcurrency: 10
+      containers:
+        - image: ko://github.com/knix-microfunctions/workflowmesh/event-performance/cmd/worker
+          env:
+          - name: K_SINK
+            value: http://step3.default.svc.cluster.local
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: step3
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/target: "5"
+    spec:
+      containerConcurrency: 10
+      containers:
+        - image: ko://github.com/knix-microfunctions/workflowmesh/event-performance/cmd/worker
+          env:
+          - name: K_SINK
+            value: http://step4.default.svc.cluster.local
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: step4
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/target: "5"
+    spec:
+      containerConcurrency: 10
+      containers:
+        - image: ko://github.com/knix-microfunctions/workflowmesh/event-performance/cmd/worker
+          env:
+          - name: K_SINK
+            value: http://step5.default.svc.cluster.local
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: step5
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/target: "5"
+    spec:
+      containerConcurrency: 10
+      containers:
+        - image: ko://github.com/knix-microfunctions/workflowmesh/event-performance/cmd/worker

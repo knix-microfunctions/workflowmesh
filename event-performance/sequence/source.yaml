@@ -1,0 +1,23 @@
+apiVersion: sources.knative.dev/v1beta1
+kind: ContainerSource
+metadata:
+  name: perftestsource
+spec:
+  template:
+    spec:
+      containers:
+        - image: ko://github.com/knix-microfunctions/workflowmesh/event-performance/cmd/heartbeats
+          args:
+            - --period=8000
+          env:
+          - name: DATASIZE
+            value: "12345"
+          - name: POD_NAME
+            value: "mypod"
+          - name: POD_NAMESPACE
+            value: "event-test"
+  sink:
+    ref:
+      apiVersion: flows.knative.dev/v1
+      kind: Sequence
+      name: sequence
