@@ -1,0 +1,18 @@
+[package]
+name = "service"
+version = "0.1.0"
+authors = ["Paarijaat Aditya <paarijaat@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tokio = { version = "0.2.*", features = ["full"] }
+actix-web = "3"
+log = "0.4.*"
+env_logger = "0.7.*"
+structopt = "0.3.20"
+chrono = "0.4.0"
+serde = "1.0.*"
+serde_json = "1.0"
+reqwest = { version = "0.10", features = ["blocking", "json"] }

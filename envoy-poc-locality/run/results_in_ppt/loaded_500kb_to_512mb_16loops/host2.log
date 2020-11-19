@@ -1,0 +1,1353 @@
++ ./build_locality.sh
+Sending build context to Docker daemon  68.14MB
+Step 1/13 : FROM rust:1.47-slim-buster
+ ---> f354cdf7e571
+Step 2/13 : RUN apt-get update
+ ---> Using cache
+ ---> 94faf9a027ef
+Step 3/13 : RUN apt-get install -y apt-utils net-tools vim httpie curl wget inetutils-ping
+ ---> Using cache
+ ---> d24f09b7c270
+Step 4/13 : ADD ./envoy /usr/local/bin/
+ ---> Using cache
+ ---> 07f567f45735
+Step 5/13 : ADD ./startup_locality_single_container.sh /
+ ---> Using cache
+ ---> 3dd13de25506
+Step 6/13 : ADD ./envoy-config-locality-single-container.yaml /
+ ---> Using cache
+ ---> 8af04dc739a3
+Step 7/13 : ADD ./gen_envoy_config.py /
+ ---> Using cache
+ ---> a8031442c45d
+Step 8/13 : ADD ./envoy-config-locality-distributed.yaml.j2 /
+ ---> Using cache
+ ---> 4fe6b3878844
+Step 9/13 : ADD ./startup_locality_distributed_1.sh /
+ ---> Using cache
+ ---> 4030034d89f9
+Step 10/13 : ADD ./startup_locality_distributed_2.sh /
+ ---> Using cache
+ ---> fc3b083e6a88
+Step 11/13 : ADD ./service /
+ ---> Using cache
+ ---> 0967c14f8e0d
+Step 12/13 : ADD ./frontend /
+ ---> Using cache
+ ---> f116733921a0
+Step 13/13 : CMD ["/startup_locality_single_container.sh"]
+ ---> Using cache
+ ---> 9236f5deda79
+Successfully built 9236f5deda79
+Successfully tagged envoypoc-locality:latest
++ docker run --rm --init --network host --cpus=2.0 --name=wf2 -e ENVOY_PORT=82 -e REMOTE_ENVOY_HOST=192.168.33.20 -e REMOTE_ENVOY_PORT=82 envoypoc-locality /startup_locality_distributed_2.sh
+input_file:/envoy-config-locality-distributed.yaml.j2, output_file:/envoy-config-locality-distributed-2.yaml, local_envoy_port:82, remote_envoy_host:192.168.33.20, remote_envoy_port:82, timeout:200
+[S0] [2020-10-21T18:52:10.238Z] [0.000038] [INFO] [frontend:294] Service name 0 starting on 0.0.0.0:12340, host_ip: 192.168.33.22, envoy_port: 82
+[S2] [2020-10-21T18:52:10.238Z] [0.000165] [INFO] [service:171] Service name 2 starting on 0.0.0.0:12342, host_ip: 192.168.33.22, service type: process, envoy_port: 82
+[S1] [2020-10-21T18:52:10.238Z] [0.000174] [INFO] [service:171] Service name 1 starting on 0.0.0.0:12341, host_ip: 192.168.33.22, service type: produce, envoy_port: 82
+[S0] [2020-10-21T18:52:10.239Z] [0.000731] [INFO] [actix_server::builder:263] Starting 2 workers
+[S2] [2020-10-21T18:52:10.239Z] [0.000767] [INFO] [actix_server::builder:263] Starting 2 workers
+[S1] [2020-10-21T18:52:10.239Z] [0.000792] [INFO] [actix_server::builder:263] Starting 2 workers
+[S0] [2020-10-21T18:52:10.239Z] [0.000929] [INFO] [actix_server::builder:277] Starting "actix-web-service-0.0.0.0:12340" service on 0.0.0.0:12340
+[S2] [2020-10-21T18:52:10.239Z] [0.000993] [INFO] [actix_server::builder:277] Starting "actix-web-service-0.0.0.0:12342" service on 0.0.0.0:12342
+[S1] [2020-10-21T18:52:10.239Z] [0.001007] [INFO] [actix_server::builder:277] Starting "actix-web-service-0.0.0.0:12341" service on 0.0.0.0:12341
+[S2] [2020-10-21T18:53:20.209Z] [69.970337] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52638 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000390
+[S2] [2020-10-21T18:53:20.209Z] [69.970459] [INFO] [service::compute_actor:73] [TRACE] [39033] [COMPUTE_START] [process]
+[S2] [2020-10-21T18:53:20.209Z] [69.970505] [INFO] [service::compute_actor:217] [TRACE] [39033] [FILE_READ_START] [process] file: /file_39033.txt
+[S2] [2020-10-21T18:53:20.209Z] [69.970634] [INFO] [service::compute_actor:231] [TRACE] [39033] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:53:20.209Z] [69.970657] [INFO] [service::compute_actor:378] Start fetching file /file_39033.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:53:20.454Z] [70.215836] [INFO] [service::compute_actor:238] [TRACE] [39033] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:53:20.472Z] [70.234154] [INFO] [service::compute_actor:259] Finish fetching file /file_39033.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:53:20.495Z] [70.256622] [INFO] [service::compute_actor:279] [TRACE] [39033] [DATA_PROCESS_START] [process] data len 16777210
+[S2] [2020-10-21T18:53:20.495Z] [70.256660] [INFO] [service::compute_actor:284] processing contents of length: 16777210
+[S2] [2020-10-21T18:53:21.327Z] [71.088348] [INFO] [service::compute_actor:296] [TRACE] [39033] [DATA_PROCESS_END] [process] data len 16777210
+[S2] [2020-10-21T18:53:21.327Z] [71.088371] [INFO] [service::compute_actor:301] finished processing contents of length: 16777210
+[S2] [2020-10-21T18:53:21.328Z] [71.090248] [INFO] [service::compute_actor:85] [TRACE] [39033] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T18:53:21.328Z] [71.090271] [INFO] [service::compute_actor:111] [TRACE] [39033] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T18:53:26.683Z] [76.445229] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52644 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000261
+[S2] [2020-10-21T18:53:26.684Z] [76.445328] [INFO] [service::compute_actor:73] [TRACE] [39036] [COMPUTE_START] [process]
+[S2] [2020-10-21T18:53:26.684Z] [76.445366] [INFO] [service::compute_actor:217] [TRACE] [39036] [FILE_READ_START] [process] file: /file_39036.txt
+[S2] [2020-10-21T18:53:26.684Z] [76.445541] [INFO] [service::compute_actor:231] [TRACE] [39036] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:53:26.684Z] [76.445564] [INFO] [service::compute_actor:378] Start fetching file /file_39036.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:53:26.913Z] [76.675163] [INFO] [service::compute_actor:238] [TRACE] [39036] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:53:26.927Z] [76.688759] [INFO] [service::compute_actor:259] Finish fetching file /file_39036.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:53:26.934Z] [76.695763] [INFO] [service::compute_actor:279] [TRACE] [39036] [DATA_PROCESS_START] [process] data len 16777210
+[S2] [2020-10-21T18:53:26.934Z] [76.695786] [INFO] [service::compute_actor:284] processing contents of length: 16777210
+[S2] [2020-10-21T18:53:27.824Z] [77.586113] [INFO] [service::compute_actor:296] [TRACE] [39036] [DATA_PROCESS_END] [process] data len 16777210
+[S2] [2020-10-21T18:53:27.824Z] [77.586151] [INFO] [service::compute_actor:301] finished processing contents of length: 16777210
+[S2] [2020-10-21T18:53:27.824Z] [77.586159] [INFO] [service::compute_actor:85] [TRACE] [39036] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T18:53:27.824Z] [77.586174] [INFO] [service::compute_actor:111] [TRACE] [39036] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T18:53:33.167Z] [82.928909] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52650 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000168
+[S2] [2020-10-21T18:53:33.167Z] [82.929024] [INFO] [service::compute_actor:73] [TRACE] [39039] [COMPUTE_START] [process]
+[S2] [2020-10-21T18:53:33.167Z] [82.929062] [INFO] [service::compute_actor:217] [TRACE] [39039] [FILE_READ_START] [process] file: /file_39039.txt
+[S2] [2020-10-21T18:53:33.167Z] [82.929230] [INFO] [service::compute_actor:231] [TRACE] [39039] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:53:33.167Z] [82.929253] [INFO] [service::compute_actor:378] Start fetching file /file_39039.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:53:33.377Z] [83.139122] [INFO] [service::compute_actor:238] [TRACE] [39039] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:53:33.391Z] [83.152931] [INFO] [service::compute_actor:259] Finish fetching file /file_39039.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:53:33.398Z] [83.159630] [INFO] [service::compute_actor:279] [TRACE] [39039] [DATA_PROCESS_START] [process] data len 16777210
+[S2] [2020-10-21T18:53:33.398Z] [83.159653] [INFO] [service::compute_actor:284] processing contents of length: 16777210
+[S2] [2020-10-21T18:53:34.226Z] [83.988136] [INFO] [service::compute_actor:296] [TRACE] [39039] [DATA_PROCESS_END] [process] data len 16777210
+[S2] [2020-10-21T18:53:34.226Z] [83.988159] [INFO] [service::compute_actor:301] finished processing contents of length: 16777210
+[S2] [2020-10-21T18:53:34.226Z] [83.988167] [INFO] [service::compute_actor:85] [TRACE] [39039] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T18:53:34.226Z] [83.988182] [INFO] [service::compute_actor:111] [TRACE] [39039] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T18:53:39.575Z] [89.336609] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52656 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000159
+[S2] [2020-10-21T18:53:39.575Z] [89.336723] [INFO] [service::compute_actor:73] [TRACE] [39042] [COMPUTE_START] [process]
+[S2] [2020-10-21T18:53:39.575Z] [89.336761] [INFO] [service::compute_actor:217] [TRACE] [39042] [FILE_READ_START] [process] file: /file_39042.txt
+[S2] [2020-10-21T18:53:39.575Z] [89.336929] [INFO] [service::compute_actor:231] [TRACE] [39042] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:53:39.575Z] [89.336952] [INFO] [service::compute_actor:378] Start fetching file /file_39042.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:53:39.803Z] [89.564964] [INFO] [service::compute_actor:238] [TRACE] [39042] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:53:39.817Z] [89.578606] [INFO] [service::compute_actor:259] Finish fetching file /file_39042.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:53:39.823Z] [89.585152] [INFO] [service::compute_actor:279] [TRACE] [39042] [DATA_PROCESS_START] [process] data len 16777210
+[S2] [2020-10-21T18:53:39.823Z] [89.585175] [INFO] [service::compute_actor:284] processing contents of length: 16777210
+[S2] [2020-10-21T18:53:40.669Z] [90.430771] [INFO] [service::compute_actor:296] [TRACE] [39042] [DATA_PROCESS_END] [process] data len 16777210
+[S2] [2020-10-21T18:53:40.669Z] [90.430801] [INFO] [service::compute_actor:301] finished processing contents of length: 16777210
+[S2] [2020-10-21T18:53:40.669Z] [90.430801] [INFO] [service::compute_actor:85] [TRACE] [39042] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T18:53:40.669Z] [90.430817] [INFO] [service::compute_actor:111] [TRACE] [39042] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T18:53:45.991Z] [95.752869] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52662 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000172
+[S2] [2020-10-21T18:53:45.991Z] [95.752937] [INFO] [service::compute_actor:73] [TRACE] [39045] [COMPUTE_START] [process]
+[S2] [2020-10-21T18:53:45.991Z] [95.752968] [INFO] [service::compute_actor:217] [TRACE] [39045] [FILE_READ_START] [process] file: /file_39045.txt
+[S2] [2020-10-21T18:53:45.991Z] [95.753113] [INFO] [service::compute_actor:231] [TRACE] [39045] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:53:45.991Z] [95.753136] [INFO] [service::compute_actor:378] Start fetching file /file_39045.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:53:46.197Z] [95.959190] [INFO] [service::compute_actor:238] [TRACE] [39045] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:53:46.214Z] [95.976105] [INFO] [service::compute_actor:259] Finish fetching file /file_39045.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:53:46.221Z] [95.982437] [INFO] [service::compute_actor:279] [TRACE] [39045] [DATA_PROCESS_START] [process] data len 16777210
+[S2] [2020-10-21T18:53:46.221Z] [95.982460] [INFO] [service::compute_actor:284] processing contents of length: 16777210
+[S2] [2020-10-21T18:53:46.894Z] [96.655441] [INFO] [service::compute_actor:296] [TRACE] [39045] [DATA_PROCESS_END] [process] data len 16777210
+[S2] [2020-10-21T18:53:46.894Z] [96.655472] [INFO] [service::compute_actor:301] finished processing contents of length: 16777210
+[S2] [2020-10-21T18:53:46.896Z] [96.657509] [INFO] [service::compute_actor:85] [TRACE] [39045] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T18:53:46.896Z] [96.657524] [INFO] [service::compute_actor:111] [TRACE] [39045] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T18:53:52.443Z] [102.204468] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52668 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.217791
+[S2] [2020-10-21T18:53:52.443Z] [102.204498] [INFO] [service::compute_actor:73] [TRACE] [39048] [COMPUTE_START] [process]
+[S2] [2020-10-21T18:53:52.443Z] [102.204536] [INFO] [service::compute_actor:194] [TRACE] [39048] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T18:53:52.443Z] [102.204552] [INFO] [service::compute_actor:198] processing data of length: 16777210
+[S2] [2020-10-21T18:53:53.288Z] [103.050240] [INFO] [service::compute_actor:210] [TRACE] [39048] [DATA_PROCESS_END] [process] data len 16777210
+[S2] [2020-10-21T18:53:53.288Z] [103.050278] [INFO] [service::compute_actor:85] [TRACE] [39048] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T18:53:53.289Z] [103.050285] [INFO] [service::compute_actor:111] [TRACE] [39048] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T18:53:58.871Z] [108.633217] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52672 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.206146
+[S2] [2020-10-21T18:53:58.871Z] [108.633255] [INFO] [service::compute_actor:73] [TRACE] [39051] [COMPUTE_START] [process]
+[S2] [2020-10-21T18:53:58.872Z] [108.633293] [INFO] [service::compute_actor:194] [TRACE] [39051] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T18:53:58.872Z] [108.633301] [INFO] [service::compute_actor:198] processing data of length: 16777210
+[S2] [2020-10-21T18:53:59.795Z] [109.556496] [INFO] [service::compute_actor:210] [TRACE] [39051] [DATA_PROCESS_END] [process] data len 16777210
+[S2] [2020-10-21T18:53:59.795Z] [109.556541] [INFO] [service::compute_actor:85] [TRACE] [39051] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T18:53:59.795Z] [109.556557] [INFO] [service::compute_actor:111] [TRACE] [39051] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T18:54:05.324Z] [115.085602] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52676 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.210030
+[S2] [2020-10-21T18:54:05.324Z] [115.085648] [INFO] [service::compute_actor:73] [TRACE] [39054] [COMPUTE_START] [process]
+[S2] [2020-10-21T18:54:05.324Z] [115.085686] [INFO] [service::compute_actor:194] [TRACE] [39054] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T18:54:05.324Z] [115.085693] [INFO] [service::compute_actor:198] processing data of length: 16777210
+[S2] [2020-10-21T18:54:05.974Z] [115.735657] [INFO] [service::compute_actor:210] [TRACE] [39054] [DATA_PROCESS_END] [process] data len 16777210
+[S2] [2020-10-21T18:54:05.974Z] [115.735695] [INFO] [service::compute_actor:85] [TRACE] [39054] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T18:54:05.974Z] [115.735710] [INFO] [service::compute_actor:111] [TRACE] [39054] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T18:54:11.498Z] [121.259590] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52680 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.194999
+[S2] [2020-10-21T18:54:11.498Z] [121.259628] [INFO] [service::compute_actor:73] [TRACE] [39057] [COMPUTE_START] [process]
+[S2] [2020-10-21T18:54:11.498Z] [121.259666] [INFO] [service::compute_actor:194] [TRACE] [39057] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T18:54:11.498Z] [121.259674] [INFO] [service::compute_actor:198] processing data of length: 16777210
+[S2] [2020-10-21T18:54:12.337Z] [122.098991] [INFO] [service::compute_actor:210] [TRACE] [39057] [DATA_PROCESS_END] [process] data len 16777210
+[S2] [2020-10-21T18:54:12.337Z] [122.099030] [INFO] [service::compute_actor:85] [TRACE] [39057] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T18:54:12.337Z] [122.099037] [INFO] [service::compute_actor:111] [TRACE] [39057] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T18:54:17.878Z] [127.640167] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52684 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.192640
+[S2] [2020-10-21T18:54:17.878Z] [127.640205] [INFO] [service::compute_actor:73] [TRACE] [39060] [COMPUTE_START] [process]
+[S2] [2020-10-21T18:54:17.878Z] [127.640244] [INFO] [service::compute_actor:194] [TRACE] [39060] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T18:54:17.878Z] [127.640251] [INFO] [service::compute_actor:198] processing data of length: 16777210
+[S2] [2020-10-21T18:54:18.826Z] [128.587570] [INFO] [service::compute_actor:210] [TRACE] [39060] [DATA_PROCESS_END] [process] data len 16777210
+[S2] [2020-10-21T18:54:18.826Z] [128.587631] [INFO] [service::compute_actor:85] [TRACE] [39060] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T18:54:18.826Z] [128.587662] [INFO] [service::compute_actor:111] [TRACE] [39060] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T18:55:46.990Z] [216.751389] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52688 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000181
+[S2] [2020-10-21T18:55:46.990Z] [216.751511] [INFO] [service::compute_actor:73] [TRACE] [39093] [COMPUTE_START] [process]
+[S2] [2020-10-21T18:55:46.990Z] [216.751556] [INFO] [service::compute_actor:217] [TRACE] [39093] [FILE_READ_START] [process] file: /file_39093.txt
+[S2] [2020-10-21T18:55:46.990Z] [216.751724] [INFO] [service::compute_actor:231] [TRACE] [39093] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:55:46.990Z] [216.751740] [INFO] [service::compute_actor:378] Start fetching file /file_39093.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:55:47.411Z] [217.172745] [INFO] [service::compute_actor:238] [TRACE] [39093] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:55:47.439Z] [217.201218] [INFO] [service::compute_actor:259] Finish fetching file /file_39093.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:55:47.463Z] [217.225113] [INFO] [service::compute_actor:279] [TRACE] [39093] [DATA_PROCESS_START] [process] data len 33554430
+[S2] [2020-10-21T18:55:47.463Z] [217.225159] [INFO] [service::compute_actor:284] processing contents of length: 33554430
+[S2] [2020-10-21T18:55:49.228Z] [218.989807] [INFO] [service::compute_actor:296] [TRACE] [39093] [DATA_PROCESS_END] [process] data len 33554430
+[S2] [2020-10-21T18:55:49.228Z] [218.989868] [INFO] [service::compute_actor:301] finished processing contents of length: 33554430
+[S2] [2020-10-21T18:55:49.231Z] [218.992920] [INFO] [service::compute_actor:85] [TRACE] [39093] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T18:55:49.231Z] [218.992950] [INFO] [service::compute_actor:111] [TRACE] [39093] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T18:55:54.672Z] [224.433670] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52694 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000198
+[S2] [2020-10-21T18:55:54.672Z] [224.433777] [INFO] [service::compute_actor:73] [TRACE] [39096] [COMPUTE_START] [process]
+[S2] [2020-10-21T18:55:54.672Z] [224.433823] [INFO] [service::compute_actor:217] [TRACE] [39096] [FILE_READ_START] [process] file: /file_39096.txt
+[S2] [2020-10-21T18:55:54.672Z] [224.433975] [INFO] [service::compute_actor:231] [TRACE] [39096] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:55:54.672Z] [224.434006] [INFO] [service::compute_actor:378] Start fetching file /file_39096.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:55:55.110Z] [224.871307] [INFO] [service::compute_actor:238] [TRACE] [39096] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:55:55.133Z] [224.894485] [INFO] [service::compute_actor:259] Finish fetching file /file_39096.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:55:55.163Z] [224.924500] [INFO] [service::compute_actor:279] [TRACE] [39096] [DATA_PROCESS_START] [process] data len 33554430
+[S2] [2020-10-21T18:55:55.163Z] [224.924561] [INFO] [service::compute_actor:284] processing contents of length: 33554430
+[S2] [2020-10-21T18:55:56.766Z] [226.528229] [INFO] [service::compute_actor:296] [TRACE] [39096] [DATA_PROCESS_END] [process] data len 33554430
+[S2] [2020-10-21T18:55:56.767Z] [226.528290] [INFO] [service::compute_actor:301] finished processing contents of length: 33554430
+[S2] [2020-10-21T18:55:56.768Z] [226.530289] [INFO] [service::compute_actor:85] [TRACE] [39096] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T18:55:56.769Z] [226.530304] [INFO] [service::compute_actor:111] [TRACE] [39096] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T18:56:02.275Z] [232.036469] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52700 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000188
+[S2] [2020-10-21T18:56:02.275Z] [232.036591] [INFO] [service::compute_actor:73] [TRACE] [39099] [COMPUTE_START] [process]
+[S2] [2020-10-21T18:56:02.275Z] [232.036636] [INFO] [service::compute_actor:217] [TRACE] [39099] [FILE_READ_START] [process] file: /file_39099.txt
+[S2] [2020-10-21T18:56:02.275Z] [232.036789] [INFO] [service::compute_actor:231] [TRACE] [39099] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:56:02.275Z] [232.036804] [INFO] [service::compute_actor:378] Start fetching file /file_39099.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:56:02.691Z] [232.453217] [INFO] [service::compute_actor:238] [TRACE] [39099] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:56:02.717Z] [232.479233] [INFO] [service::compute_actor:259] Finish fetching file /file_39099.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:56:02.761Z] [232.522461] [INFO] [service::compute_actor:279] [TRACE] [39099] [DATA_PROCESS_START] [process] data len 33554430
+[S2] [2020-10-21T18:56:02.761Z] [232.522522] [INFO] [service::compute_actor:284] processing contents of length: 33554430
+[S2] [2020-10-21T18:56:04.534Z] [234.295792] [INFO] [service::compute_actor:296] [TRACE] [39099] [DATA_PROCESS_END] [process] data len 33554430
+[S2] [2020-10-21T18:56:04.534Z] [234.295853] [INFO] [service::compute_actor:301] finished processing contents of length: 33554430
+[S2] [2020-10-21T18:56:04.536Z] [234.297882] [INFO] [service::compute_actor:85] [TRACE] [39099] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T18:56:04.536Z] [234.297913] [INFO] [service::compute_actor:111] [TRACE] [39099] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T18:56:09.929Z] [239.690414] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52706 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000182
+[S2] [2020-10-21T18:56:09.929Z] [239.690521] [INFO] [service::compute_actor:73] [TRACE] [39102] [COMPUTE_START] [process]
+[S2] [2020-10-21T18:56:09.929Z] [239.690567] [INFO] [service::compute_actor:217] [TRACE] [39102] [FILE_READ_START] [process] file: /file_39102.txt
+[S2] [2020-10-21T18:56:09.929Z] [239.690735] [INFO] [service::compute_actor:231] [TRACE] [39102] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:56:09.929Z] [239.690750] [INFO] [service::compute_actor:378] Start fetching file /file_39102.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:56:10.387Z] [240.148285] [INFO] [service::compute_actor:238] [TRACE] [39102] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:56:10.410Z] [240.171295] [INFO] [service::compute_actor:259] Finish fetching file /file_39102.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:56:10.440Z] [240.201614] [INFO] [service::compute_actor:279] [TRACE] [39102] [DATA_PROCESS_START] [process] data len 33554430
+[S2] [2020-10-21T18:56:10.440Z] [240.201675] [INFO] [service::compute_actor:284] processing contents of length: 33554430
+[S2] [2020-10-21T18:56:12.214Z] [241.975449] [INFO] [service::compute_actor:296] [TRACE] [39102] [DATA_PROCESS_END] [process] data len 33554430
+[S2] [2020-10-21T18:56:12.214Z] [241.975525] [INFO] [service::compute_actor:301] finished processing contents of length: 33554430
+[S2] [2020-10-21T18:56:12.216Z] [241.977554] [INFO] [service::compute_actor:85] [TRACE] [39102] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T18:56:12.216Z] [241.977600] [INFO] [service::compute_actor:111] [TRACE] [39102] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T18:56:17.624Z] [247.386276] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52712 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000174
+[S2] [2020-10-21T18:56:17.625Z] [247.386383] [INFO] [service::compute_actor:73] [TRACE] [39105] [COMPUTE_START] [process]
+[S2] [2020-10-21T18:56:17.625Z] [247.386414] [INFO] [service::compute_actor:217] [TRACE] [39105] [FILE_READ_START] [process] file: /file_39105.txt
+[S2] [2020-10-21T18:56:17.625Z] [247.386566] [INFO] [service::compute_actor:231] [TRACE] [39105] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:56:17.625Z] [247.386581] [INFO] [service::compute_actor:378] Start fetching file /file_39105.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:56:18.093Z] [247.855194] [INFO] [service::compute_actor:238] [TRACE] [39105] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:56:18.131Z] [247.892731] [INFO] [service::compute_actor:259] Finish fetching file /file_39105.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T18:56:18.171Z] [247.932602] [INFO] [service::compute_actor:279] [TRACE] [39105] [DATA_PROCESS_START] [process] data len 33554430
+[S2] [2020-10-21T18:56:18.171Z] [247.932663] [INFO] [service::compute_actor:284] processing contents of length: 33554430
+[S2] [2020-10-21T18:56:19.929Z] [249.691132] [INFO] [service::compute_actor:296] [TRACE] [39105] [DATA_PROCESS_END] [process] data len 33554430
+[S2] [2020-10-21T18:56:19.929Z] [249.691193] [INFO] [service::compute_actor:301] finished processing contents of length: 33554430
+[S2] [2020-10-21T18:56:19.931Z] [249.693237] [INFO] [service::compute_actor:85] [TRACE] [39105] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T18:56:19.931Z] [249.693268] [INFO] [service::compute_actor:111] [TRACE] [39105] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T18:56:25.796Z] [255.557861] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52718 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.378909
+[S2] [2020-10-21T18:56:25.796Z] [255.557907] [INFO] [service::compute_actor:73] [TRACE] [39108] [COMPUTE_START] [process]
+[S2] [2020-10-21T18:56:25.796Z] [255.557953] [INFO] [service::compute_actor:194] [TRACE] [39108] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T18:56:25.796Z] [255.557953] [INFO] [service::compute_actor:198] processing data of length: 33554430
+[S2] [2020-10-21T18:56:27.627Z] [257.388275] [INFO] [service::compute_actor:210] [TRACE] [39108] [DATA_PROCESS_END] [process] data len 33554430
+[S2] [2020-10-21T18:56:27.627Z] [257.388367] [INFO] [service::compute_actor:85] [TRACE] [39108] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T18:56:27.627Z] [257.388397] [INFO] [service::compute_actor:111] [TRACE] [39108] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T18:56:33.474Z] [263.235626] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52722 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.367614
+[S2] [2020-10-21T18:56:33.474Z] [263.235687] [INFO] [service::compute_actor:73] [TRACE] [39111] [COMPUTE_START] [process]
+[S2] [2020-10-21T18:56:33.474Z] [263.235718] [INFO] [service::compute_actor:194] [TRACE] [39111] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T18:56:33.474Z] [263.235748] [INFO] [service::compute_actor:198] processing data of length: 33554430
+[S2] [2020-10-21T18:56:35.271Z] [265.032379] [INFO] [service::compute_actor:210] [TRACE] [39111] [DATA_PROCESS_END] [process] data len 33554430
+[S2] [2020-10-21T18:56:35.271Z] [265.032440] [INFO] [service::compute_actor:85] [TRACE] [39111] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T18:56:35.271Z] [265.032471] [INFO] [service::compute_actor:111] [TRACE] [39111] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T18:56:41.253Z] [271.014954] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52726 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.374956
+[S2] [2020-10-21T18:56:41.253Z] [271.015015] [INFO] [service::compute_actor:73] [TRACE] [39114] [COMPUTE_START] [process]
+[S2] [2020-10-21T18:56:41.253Z] [271.015045] [INFO] [service::compute_actor:194] [TRACE] [39114] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T18:56:41.253Z] [271.015076] [INFO] [service::compute_actor:198] processing data of length: 33554430
+[S2] [2020-10-21T18:56:43.074Z] [272.835571] [INFO] [service::compute_actor:210] [TRACE] [39114] [DATA_PROCESS_END] [process] data len 33554430
+[S2] [2020-10-21T18:56:43.074Z] [272.835632] [INFO] [service::compute_actor:85] [TRACE] [39114] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T18:56:43.074Z] [272.835632] [INFO] [service::compute_actor:111] [TRACE] [39114] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T18:56:48.940Z] [278.701508] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52730 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.342685
+[S2] [2020-10-21T18:56:48.940Z] [278.701538] [INFO] [service::compute_actor:73] [TRACE] [39117] [COMPUTE_START] [process]
+[S2] [2020-10-21T18:56:48.940Z] [278.701599] [INFO] [service::compute_actor:194] [TRACE] [39117] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T18:56:48.940Z] [278.701599] [INFO] [service::compute_actor:198] processing data of length: 33554430
+[S2] [2020-10-21T18:56:50.758Z] [280.520233] [INFO] [service::compute_actor:210] [TRACE] [39117] [DATA_PROCESS_END] [process] data len 33554430
+[S2] [2020-10-21T18:56:50.759Z] [280.520294] [INFO] [service::compute_actor:85] [TRACE] [39117] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T18:56:50.759Z] [280.520355] [INFO] [service::compute_actor:111] [TRACE] [39117] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T18:56:56.819Z] [286.580505] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52734 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.393472
+[S2] [2020-10-21T18:56:56.819Z] [286.580536] [INFO] [service::compute_actor:73] [TRACE] [39120] [COMPUTE_START] [process]
+[S2] [2020-10-21T18:56:56.819Z] [286.580566] [INFO] [service::compute_actor:194] [TRACE] [39120] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T18:56:56.819Z] [286.580597] [INFO] [service::compute_actor:198] processing data of length: 33554430
+[S2] [2020-10-21T18:56:58.640Z] [288.401611] [INFO] [service::compute_actor:210] [TRACE] [39120] [DATA_PROCESS_END] [process] data len 33554430
+[S2] [2020-10-21T18:56:58.640Z] [288.401672] [INFO] [service::compute_actor:85] [TRACE] [39120] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T18:56:58.640Z] [288.401703] [INFO] [service::compute_actor:111] [TRACE] [39120] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:02:47.857Z] [637.619263] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52738 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000222
+[S2] [2020-10-21T19:02:47.858Z] [637.619385] [INFO] [service::compute_actor:73] [TRACE] [40033] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:02:47.858Z] [637.619446] [INFO] [service::compute_actor:217] [TRACE] [40033] [FILE_READ_START] [process] file: /file_40033.txt
+[S2] [2020-10-21T19:02:47.858Z] [637.619568] [INFO] [service::compute_actor:231] [TRACE] [40033] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:02:47.858Z] [637.619568] [INFO] [service::compute_actor:378] Start fetching file /file_40033.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:02:47.883Z] [637.645264] [INFO] [service::compute_actor:238] [TRACE] [40033] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:02:47.884Z] [637.646240] [INFO] [service::compute_actor:259] Finish fetching file /file_40033.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:02:47.885Z] [637.646484] [INFO] [service::compute_actor:279] [TRACE] [40033] [DATA_PROCESS_START] [process] data len 512000
+[S2] [2020-10-21T19:02:47.885Z] [637.646545] [INFO] [service::compute_actor:284] processing contents of length: 512000
+[S2] [2020-10-21T19:02:47.917Z] [637.678589] [INFO] [service::compute_actor:296] [TRACE] [40033] [DATA_PROCESS_END] [process] data len 512000
+[S2] [2020-10-21T19:02:47.917Z] [637.678589] [INFO] [service::compute_actor:301] finished processing contents of length: 512000
+[S2] [2020-10-21T19:02:47.917Z] [637.678589] [INFO] [service::compute_actor:85] [TRACE] [40033] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:02:47.917Z] [637.678650] [INFO] [service::compute_actor:111] [TRACE] [40033] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:02:53.174Z] [642.936035] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52744 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000184
+[S2] [2020-10-21T19:02:53.174Z] [642.936096] [INFO] [service::compute_actor:73] [TRACE] [40036] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:02:53.174Z] [642.936157] [INFO] [service::compute_actor:217] [TRACE] [40036] [FILE_READ_START] [process] file: /file_40036.txt
+[S2] [2020-10-21T19:02:53.174Z] [642.936279] [INFO] [service::compute_actor:231] [TRACE] [40036] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:02:53.175Z] [642.936279] [INFO] [service::compute_actor:378] Start fetching file /file_40036.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:02:53.198Z] [642.959473] [INFO] [service::compute_actor:238] [TRACE] [40036] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:02:53.198Z] [642.960266] [INFO] [service::compute_actor:259] Finish fetching file /file_40036.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:02:53.199Z] [642.960510] [INFO] [service::compute_actor:279] [TRACE] [40036] [DATA_PROCESS_START] [process] data len 512000
+[S2] [2020-10-21T19:02:53.199Z] [642.960510] [INFO] [service::compute_actor:284] processing contents of length: 512000
+[S2] [2020-10-21T19:02:53.248Z] [643.010132] [INFO] [service::compute_actor:296] [TRACE] [40036] [DATA_PROCESS_END] [process] data len 512000
+[S2] [2020-10-21T19:02:53.248Z] [643.010193] [INFO] [service::compute_actor:301] finished processing contents of length: 512000
+[S2] [2020-10-21T19:02:53.248Z] [643.010193] [INFO] [service::compute_actor:85] [TRACE] [40036] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:02:53.248Z] [643.010193] [INFO] [service::compute_actor:111] [TRACE] [40036] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:02:58.503Z] [648.264709] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52750 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000156
+[S2] [2020-10-21T19:02:58.503Z] [648.264771] [INFO] [service::compute_actor:73] [TRACE] [40039] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:02:58.503Z] [648.264832] [INFO] [service::compute_actor:217] [TRACE] [40039] [FILE_READ_START] [process] file: /file_40039.txt
+[S2] [2020-10-21T19:02:58.503Z] [648.264954] [INFO] [service::compute_actor:231] [TRACE] [40039] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:02:58.503Z] [648.264954] [INFO] [service::compute_actor:378] Start fetching file /file_40039.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:02:58.531Z] [648.292297] [INFO] [service::compute_actor:238] [TRACE] [40039] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:02:58.531Z] [648.293152] [INFO] [service::compute_actor:259] Finish fetching file /file_40039.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:02:58.532Z] [648.293396] [INFO] [service::compute_actor:279] [TRACE] [40039] [DATA_PROCESS_START] [process] data len 512000
+[S2] [2020-10-21T19:02:58.532Z] [648.293396] [INFO] [service::compute_actor:284] processing contents of length: 512000
+[S2] [2020-10-21T19:02:58.563Z] [648.324646] [INFO] [service::compute_actor:296] [TRACE] [40039] [DATA_PROCESS_END] [process] data len 512000
+[S2] [2020-10-21T19:02:58.563Z] [648.324646] [INFO] [service::compute_actor:301] finished processing contents of length: 512000
+[S2] [2020-10-21T19:02:58.563Z] [648.324646] [INFO] [service::compute_actor:85] [TRACE] [40039] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:02:58.563Z] [648.324646] [INFO] [service::compute_actor:111] [TRACE] [40039] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:03:03.815Z] [653.577148] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52756 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000164
+[S2] [2020-10-21T19:03:03.815Z] [653.577271] [INFO] [service::compute_actor:73] [TRACE] [40042] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:03:03.816Z] [653.577271] [INFO] [service::compute_actor:217] [TRACE] [40042] [FILE_READ_START] [process] file: /file_40042.txt
+[S2] [2020-10-21T19:03:03.816Z] [653.577393] [INFO] [service::compute_actor:231] [TRACE] [40042] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:03:03.816Z] [653.577454] [INFO] [service::compute_actor:378] Start fetching file /file_40042.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:03:03.839Z] [653.600342] [INFO] [service::compute_actor:238] [TRACE] [40042] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:03:03.840Z] [653.601624] [INFO] [service::compute_actor:259] Finish fetching file /file_40042.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:03:03.840Z] [653.601868] [INFO] [service::compute_actor:279] [TRACE] [40042] [DATA_PROCESS_START] [process] data len 512000
+[S2] [2020-10-21T19:03:03.840Z] [653.601929] [INFO] [service::compute_actor:284] processing contents of length: 512000
+[S2] [2020-10-21T19:03:03.869Z] [653.630310] [INFO] [service::compute_actor:296] [TRACE] [40042] [DATA_PROCESS_END] [process] data len 512000
+[S2] [2020-10-21T19:03:03.869Z] [653.630310] [INFO] [service::compute_actor:301] finished processing contents of length: 512000
+[S2] [2020-10-21T19:03:03.869Z] [653.630310] [INFO] [service::compute_actor:85] [TRACE] [40042] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:03:03.869Z] [653.630310] [INFO] [service::compute_actor:111] [TRACE] [40042] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:03:09.125Z] [658.886414] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52762 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000161
+[S2] [2020-10-21T19:03:09.125Z] [658.886536] [INFO] [service::compute_actor:73] [TRACE] [40045] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:03:09.125Z] [658.886536] [INFO] [service::compute_actor:217] [TRACE] [40045] [FILE_READ_START] [process] file: /file_40045.txt
+[S2] [2020-10-21T19:03:09.125Z] [658.886658] [INFO] [service::compute_actor:231] [TRACE] [40045] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:03:09.125Z] [658.886719] [INFO] [service::compute_actor:378] Start fetching file /file_40045.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:03:09.149Z] [658.910828] [INFO] [service::compute_actor:238] [TRACE] [40045] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:03:09.150Z] [658.911743] [INFO] [service::compute_actor:259] Finish fetching file /file_40045.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:03:09.150Z] [658.911987] [INFO] [service::compute_actor:279] [TRACE] [40045] [DATA_PROCESS_START] [process] data len 512000
+[S2] [2020-10-21T19:03:09.150Z] [658.911987] [INFO] [service::compute_actor:284] processing contents of length: 512000
+[S2] [2020-10-21T19:03:09.180Z] [658.941895] [INFO] [service::compute_actor:296] [TRACE] [40045] [DATA_PROCESS_END] [process] data len 512000
+[S2] [2020-10-21T19:03:09.180Z] [658.941956] [INFO] [service::compute_actor:301] finished processing contents of length: 512000
+[S2] [2020-10-21T19:03:09.180Z] [658.941956] [INFO] [service::compute_actor:85] [TRACE] [40045] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:03:09.180Z] [658.941956] [INFO] [service::compute_actor:111] [TRACE] [40045] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:03:14.439Z] [664.200623] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52768 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.007606
+[S2] [2020-10-21T19:03:14.439Z] [664.200745] [INFO] [service::compute_actor:73] [TRACE] [40048] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:03:14.439Z] [664.200745] [INFO] [service::compute_actor:194] [TRACE] [40048] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:03:14.439Z] [664.200745] [INFO] [service::compute_actor:198] processing data of length: 512000
+[S2] [2020-10-21T19:03:14.477Z] [664.238342] [INFO] [service::compute_actor:210] [TRACE] [40048] [DATA_PROCESS_END] [process] data len 512000
+[S2] [2020-10-21T19:03:14.477Z] [664.238403] [INFO] [service::compute_actor:85] [TRACE] [40048] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:03:14.477Z] [664.238403] [INFO] [service::compute_actor:111] [TRACE] [40048] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:03:19.742Z] [669.503723] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52772 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.007705
+[S2] [2020-10-21T19:03:19.742Z] [669.503845] [INFO] [service::compute_actor:73] [TRACE] [40051] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:03:19.742Z] [669.503845] [INFO] [service::compute_actor:194] [TRACE] [40051] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:03:19.742Z] [669.503845] [INFO] [service::compute_actor:198] processing data of length: 512000
+[S2] [2020-10-21T19:03:19.776Z] [669.537598] [INFO] [service::compute_actor:210] [TRACE] [40051] [DATA_PROCESS_END] [process] data len 512000
+[S2] [2020-10-21T19:03:19.776Z] [669.537598] [INFO] [service::compute_actor:85] [TRACE] [40051] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:03:19.776Z] [669.537598] [INFO] [service::compute_actor:111] [TRACE] [40051] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:03:25.034Z] [674.795898] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52776 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.006655
+[S2] [2020-10-21T19:03:25.034Z] [674.796021] [INFO] [service::compute_actor:73] [TRACE] [40054] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:03:25.034Z] [674.796021] [INFO] [service::compute_actor:194] [TRACE] [40054] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:03:25.034Z] [674.796082] [INFO] [service::compute_actor:198] processing data of length: 512000
+[S2] [2020-10-21T19:03:25.067Z] [674.828918] [INFO] [service::compute_actor:210] [TRACE] [40054] [DATA_PROCESS_END] [process] data len 512000
+[S2] [2020-10-21T19:03:25.067Z] [674.828918] [INFO] [service::compute_actor:85] [TRACE] [40054] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:03:25.067Z] [674.828918] [INFO] [service::compute_actor:111] [TRACE] [40054] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:03:30.324Z] [680.086121] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52780 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.005590
+[S2] [2020-10-21T19:03:30.324Z] [680.086182] [INFO] [service::compute_actor:73] [TRACE] [40057] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:03:30.324Z] [680.086243] [INFO] [service::compute_actor:194] [TRACE] [40057] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:03:30.324Z] [680.086243] [INFO] [service::compute_actor:198] processing data of length: 512000
+[S2] [2020-10-21T19:03:30.358Z] [680.119446] [INFO] [service::compute_actor:210] [TRACE] [40057] [DATA_PROCESS_END] [process] data len 512000
+[S2] [2020-10-21T19:03:30.358Z] [680.119507] [INFO] [service::compute_actor:85] [TRACE] [40057] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:03:30.358Z] [680.119507] [INFO] [service::compute_actor:111] [TRACE] [40057] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:03:35.617Z] [685.378967] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52784 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.006388
+[S2] [2020-10-21T19:03:35.617Z] [685.379028] [INFO] [service::compute_actor:73] [TRACE] [40060] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:03:35.617Z] [685.379089] [INFO] [service::compute_actor:194] [TRACE] [40060] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:03:35.617Z] [685.379089] [INFO] [service::compute_actor:198] processing data of length: 512000
+[S2] [2020-10-21T19:03:35.651Z] [685.412781] [INFO] [service::compute_actor:210] [TRACE] [40060] [DATA_PROCESS_END] [process] data len 512000
+[S2] [2020-10-21T19:03:35.651Z] [685.412781] [INFO] [service::compute_actor:85] [TRACE] [40060] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:03:35.651Z] [685.412781] [INFO] [service::compute_actor:111] [TRACE] [40060] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:04:34.158Z] [743.920227] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52788 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000159
+[S2] [2020-10-21T19:04:34.159Z] [743.920288] [INFO] [service::compute_actor:73] [TRACE] [40093] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:04:34.159Z] [743.920349] [INFO] [service::compute_actor:217] [TRACE] [40093] [FILE_READ_START] [process] file: /file_40093.txt
+[S2] [2020-10-21T19:04:34.159Z] [743.920471] [INFO] [service::compute_actor:231] [TRACE] [40093] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:04:34.159Z] [743.920532] [INFO] [service::compute_actor:378] Start fetching file /file_40093.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:04:34.192Z] [743.953491] [INFO] [service::compute_actor:238] [TRACE] [40093] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:04:34.193Z] [743.955139] [INFO] [service::compute_actor:259] Finish fetching file /file_40093.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:04:34.194Z] [743.955566] [INFO] [service::compute_actor:279] [TRACE] [40093] [DATA_PROCESS_START] [process] data len 1048570
+[S2] [2020-10-21T19:04:34.194Z] [743.955566] [INFO] [service::compute_actor:284] processing contents of length: 1048570
+[S2] [2020-10-21T19:04:34.274Z] [744.036072] [INFO] [service::compute_actor:296] [TRACE] [40093] [DATA_PROCESS_END] [process] data len 1048570
+[S2] [2020-10-21T19:04:34.274Z] [744.036133] [INFO] [service::compute_actor:301] finished processing contents of length: 1048570
+[S2] [2020-10-21T19:04:34.274Z] [744.036133] [INFO] [service::compute_actor:85] [TRACE] [40093] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:04:34.274Z] [744.036133] [INFO] [service::compute_actor:111] [TRACE] [40093] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:04:39.531Z] [749.292847] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52794 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000166
+[S2] [2020-10-21T19:04:39.531Z] [749.292908] [INFO] [service::compute_actor:73] [TRACE] [40096] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:04:39.531Z] [749.292969] [INFO] [service::compute_actor:217] [TRACE] [40096] [FILE_READ_START] [process] file: /file_40096.txt
+[S2] [2020-10-21T19:04:39.531Z] [749.293091] [INFO] [service::compute_actor:231] [TRACE] [40096] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:04:39.531Z] [749.293091] [INFO] [service::compute_actor:378] Start fetching file /file_40096.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:04:39.562Z] [749.324219] [INFO] [service::compute_actor:238] [TRACE] [40096] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:04:39.564Z] [749.325806] [INFO] [service::compute_actor:259] Finish fetching file /file_40096.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:04:39.564Z] [749.326233] [INFO] [service::compute_actor:279] [TRACE] [40096] [DATA_PROCESS_START] [process] data len 1048570
+[S2] [2020-10-21T19:04:39.564Z] [749.326233] [INFO] [service::compute_actor:284] processing contents of length: 1048570
+[S2] [2020-10-21T19:04:39.644Z] [749.405457] [INFO] [service::compute_actor:296] [TRACE] [40096] [DATA_PROCESS_END] [process] data len 1048570
+[S2] [2020-10-21T19:04:39.644Z] [749.405518] [INFO] [service::compute_actor:301] finished processing contents of length: 1048570
+[S2] [2020-10-21T19:04:39.644Z] [749.405518] [INFO] [service::compute_actor:85] [TRACE] [40096] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:04:39.644Z] [749.405518] [INFO] [service::compute_actor:111] [TRACE] [40096] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:04:44.904Z] [754.666260] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52800 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000159
+[S2] [2020-10-21T19:04:44.905Z] [754.666382] [INFO] [service::compute_actor:73] [TRACE] [40099] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:04:44.905Z] [754.666382] [INFO] [service::compute_actor:217] [TRACE] [40099] [FILE_READ_START] [process] file: /file_40099.txt
+[S2] [2020-10-21T19:04:44.905Z] [754.666565] [INFO] [service::compute_actor:231] [TRACE] [40099] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:04:44.905Z] [754.666565] [INFO] [service::compute_actor:378] Start fetching file /file_40099.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:04:44.934Z] [754.695679] [INFO] [service::compute_actor:238] [TRACE] [40099] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:04:44.935Z] [754.697205] [INFO] [service::compute_actor:259] Finish fetching file /file_40099.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:04:44.936Z] [754.697632] [INFO] [service::compute_actor:279] [TRACE] [40099] [DATA_PROCESS_START] [process] data len 1048570
+[S2] [2020-10-21T19:04:44.936Z] [754.697632] [INFO] [service::compute_actor:284] processing contents of length: 1048570
+[S2] [2020-10-21T19:04:45.010Z] [754.771545] [INFO] [service::compute_actor:296] [TRACE] [40099] [DATA_PROCESS_END] [process] data len 1048570
+[S2] [2020-10-21T19:04:45.010Z] [754.771606] [INFO] [service::compute_actor:301] finished processing contents of length: 1048570
+[S2] [2020-10-21T19:04:45.010Z] [754.771606] [INFO] [service::compute_actor:85] [TRACE] [40099] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:04:45.010Z] [754.771606] [INFO] [service::compute_actor:111] [TRACE] [40099] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:04:50.273Z] [760.035095] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52806 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000160
+[S2] [2020-10-21T19:04:50.273Z] [760.035156] [INFO] [service::compute_actor:73] [TRACE] [40102] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:04:50.273Z] [760.035217] [INFO] [service::compute_actor:217] [TRACE] [40102] [FILE_READ_START] [process] file: /file_40102.txt
+[S2] [2020-10-21T19:04:50.274Z] [760.035339] [INFO] [service::compute_actor:231] [TRACE] [40102] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:04:50.274Z] [760.035339] [INFO] [service::compute_actor:378] Start fetching file /file_40102.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:04:50.304Z] [760.066162] [INFO] [service::compute_actor:238] [TRACE] [40102] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:04:50.306Z] [760.067749] [INFO] [service::compute_actor:259] Finish fetching file /file_40102.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:04:50.306Z] [760.068176] [INFO] [service::compute_actor:279] [TRACE] [40102] [DATA_PROCESS_START] [process] data len 1048570
+[S2] [2020-10-21T19:04:50.306Z] [760.068176] [INFO] [service::compute_actor:284] processing contents of length: 1048570
+[S2] [2020-10-21T19:04:50.385Z] [760.146973] [INFO] [service::compute_actor:296] [TRACE] [40102] [DATA_PROCESS_END] [process] data len 1048570
+[S2] [2020-10-21T19:04:50.385Z] [760.147034] [INFO] [service::compute_actor:301] finished processing contents of length: 1048570
+[S2] [2020-10-21T19:04:50.385Z] [760.147034] [INFO] [service::compute_actor:85] [TRACE] [40102] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:04:50.385Z] [760.147034] [INFO] [service::compute_actor:111] [TRACE] [40102] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:04:55.650Z] [765.411743] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52812 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000160
+[S2] [2020-10-21T19:04:55.650Z] [765.411865] [INFO] [service::compute_actor:73] [TRACE] [40105] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:04:55.650Z] [765.411865] [INFO] [service::compute_actor:217] [TRACE] [40105] [FILE_READ_START] [process] file: /file_40105.txt
+[S2] [2020-10-21T19:04:55.650Z] [765.411987] [INFO] [service::compute_actor:231] [TRACE] [40105] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:04:55.650Z] [765.411987] [INFO] [service::compute_actor:378] Start fetching file /file_40105.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:04:55.682Z] [765.444153] [INFO] [service::compute_actor:238] [TRACE] [40105] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:04:55.684Z] [765.445740] [INFO] [service::compute_actor:259] Finish fetching file /file_40105.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:04:55.684Z] [765.446167] [INFO] [service::compute_actor:279] [TRACE] [40105] [DATA_PROCESS_START] [process] data len 1048570
+[S2] [2020-10-21T19:04:55.684Z] [765.446167] [INFO] [service::compute_actor:284] processing contents of length: 1048570
+[S2] [2020-10-21T19:04:55.762Z] [765.523315] [INFO] [service::compute_actor:296] [TRACE] [40105] [DATA_PROCESS_END] [process] data len 1048570
+[S2] [2020-10-21T19:04:55.762Z] [765.523315] [INFO] [service::compute_actor:301] finished processing contents of length: 1048570
+[S2] [2020-10-21T19:04:55.762Z] [765.523315] [INFO] [service::compute_actor:85] [TRACE] [40105] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:04:55.762Z] [765.523376] [INFO] [service::compute_actor:111] [TRACE] [40105] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:05:01.036Z] [770.797852] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52818 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.015791
+[S2] [2020-10-21T19:05:01.036Z] [770.797974] [INFO] [service::compute_actor:73] [TRACE] [40108] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:05:01.036Z] [770.797974] [INFO] [service::compute_actor:194] [TRACE] [40108] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:05:01.036Z] [770.797974] [INFO] [service::compute_actor:198] processing data of length: 1048570
+[S2] [2020-10-21T19:05:01.097Z] [770.858337] [INFO] [service::compute_actor:210] [TRACE] [40108] [DATA_PROCESS_END] [process] data len 1048570
+[S2] [2020-10-21T19:05:01.097Z] [770.858398] [INFO] [service::compute_actor:85] [TRACE] [40108] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:05:01.097Z] [770.858398] [INFO] [service::compute_actor:111] [TRACE] [40108] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:05:06.370Z] [776.131470] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52822 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.014594
+[S2] [2020-10-21T19:05:06.370Z] [776.131531] [INFO] [service::compute_actor:73] [TRACE] [40111] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:05:06.370Z] [776.131592] [INFO] [service::compute_actor:194] [TRACE] [40111] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:05:06.370Z] [776.131592] [INFO] [service::compute_actor:198] processing data of length: 1048570
+[S2] [2020-10-21T19:05:06.427Z] [776.189026] [INFO] [service::compute_actor:210] [TRACE] [40111] [DATA_PROCESS_END] [process] data len 1048570
+[S2] [2020-10-21T19:05:06.427Z] [776.189087] [INFO] [service::compute_actor:85] [TRACE] [40111] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:05:06.427Z] [776.189087] [INFO] [service::compute_actor:111] [TRACE] [40111] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:05:11.699Z] [781.461060] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52826 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.012182
+[S2] [2020-10-21T19:05:11.699Z] [781.461182] [INFO] [service::compute_actor:73] [TRACE] [40114] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:05:11.699Z] [781.461243] [INFO] [service::compute_actor:194] [TRACE] [40114] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:05:11.699Z] [781.461243] [INFO] [service::compute_actor:198] processing data of length: 1048570
+[S2] [2020-10-21T19:05:11.781Z] [781.543030] [INFO] [service::compute_actor:210] [TRACE] [40114] [DATA_PROCESS_END] [process] data len 1048570
+[S2] [2020-10-21T19:05:11.781Z] [781.543091] [INFO] [service::compute_actor:85] [TRACE] [40114] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:05:11.781Z] [781.543091] [INFO] [service::compute_actor:111] [TRACE] [40114] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:05:17.055Z] [786.816895] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52830 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.014412
+[S2] [2020-10-21T19:05:17.055Z] [786.816956] [INFO] [service::compute_actor:73] [TRACE] [40117] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:05:17.055Z] [786.817017] [INFO] [service::compute_actor:194] [TRACE] [40117] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:05:17.055Z] [786.817017] [INFO] [service::compute_actor:198] processing data of length: 1048570
+[S2] [2020-10-21T19:05:17.136Z] [786.897339] [INFO] [service::compute_actor:210] [TRACE] [40117] [DATA_PROCESS_END] [process] data len 1048570
+[S2] [2020-10-21T19:05:17.136Z] [786.897339] [INFO] [service::compute_actor:85] [TRACE] [40117] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:05:17.136Z] [786.897339] [INFO] [service::compute_actor:111] [TRACE] [40117] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:05:22.412Z] [792.173340] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52834 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.014318
+[S2] [2020-10-21T19:05:22.412Z] [792.173462] [INFO] [service::compute_actor:73] [TRACE] [40120] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:05:22.412Z] [792.173523] [INFO] [service::compute_actor:194] [TRACE] [40120] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:05:22.412Z] [792.173523] [INFO] [service::compute_actor:198] processing data of length: 1048570
+[S2] [2020-10-21T19:05:22.474Z] [792.235718] [INFO] [service::compute_actor:210] [TRACE] [40120] [DATA_PROCESS_END] [process] data len 1048570
+[S2] [2020-10-21T19:05:22.474Z] [792.235718] [INFO] [service::compute_actor:85] [TRACE] [40120] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:05:22.474Z] [792.235779] [INFO] [service::compute_actor:111] [TRACE] [40120] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:06:21.494Z] [851.256165] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52838 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000162
+[S2] [2020-10-21T19:06:21.494Z] [851.256287] [INFO] [service::compute_actor:73] [TRACE] [40153] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:06:21.495Z] [851.256287] [INFO] [service::compute_actor:217] [TRACE] [40153] [FILE_READ_START] [process] file: /file_40153.txt
+[S2] [2020-10-21T19:06:21.495Z] [851.256409] [INFO] [service::compute_actor:231] [TRACE] [40153] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:06:21.495Z] [851.256470] [INFO] [service::compute_actor:378] Start fetching file /file_40153.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:06:21.538Z] [851.299988] [INFO] [service::compute_actor:238] [TRACE] [40153] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:06:21.541Z] [851.302979] [INFO] [service::compute_actor:259] Finish fetching file /file_40153.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:06:21.542Z] [851.303711] [INFO] [service::compute_actor:279] [TRACE] [40153] [DATA_PROCESS_START] [process] data len 2097150
+[S2] [2020-10-21T19:06:21.542Z] [851.303772] [INFO] [service::compute_actor:284] processing contents of length: 2097150
+[S2] [2020-10-21T19:06:21.682Z] [851.443542] [INFO] [service::compute_actor:296] [TRACE] [40153] [DATA_PROCESS_END] [process] data len 2097150
+[S2] [2020-10-21T19:06:21.682Z] [851.443542] [INFO] [service::compute_actor:301] finished processing contents of length: 2097150
+[S2] [2020-10-21T19:06:21.682Z] [851.443542] [INFO] [service::compute_actor:85] [TRACE] [40153] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:06:21.682Z] [851.443542] [INFO] [service::compute_actor:111] [TRACE] [40153] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:06:26.942Z] [856.703796] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52844 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000170
+[S2] [2020-10-21T19:06:26.942Z] [856.703918] [INFO] [service::compute_actor:73] [TRACE] [40156] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:06:26.942Z] [856.703979] [INFO] [service::compute_actor:217] [TRACE] [40156] [FILE_READ_START] [process] file: /file_40156.txt
+[S2] [2020-10-21T19:06:26.942Z] [856.704102] [INFO] [service::compute_actor:231] [TRACE] [40156] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:06:26.942Z] [856.704102] [INFO] [service::compute_actor:378] Start fetching file /file_40156.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:06:26.988Z] [856.749390] [INFO] [service::compute_actor:238] [TRACE] [40156] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:06:26.990Z] [856.751648] [INFO] [service::compute_actor:259] Finish fetching file /file_40156.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:06:26.990Z] [856.752197] [INFO] [service::compute_actor:279] [TRACE] [40156] [DATA_PROCESS_START] [process] data len 2097150
+[S2] [2020-10-21T19:06:26.990Z] [856.752258] [INFO] [service::compute_actor:284] processing contents of length: 2097150
+[S2] [2020-10-21T19:06:27.095Z] [856.856567] [INFO] [service::compute_actor:296] [TRACE] [40156] [DATA_PROCESS_END] [process] data len 2097150
+[S2] [2020-10-21T19:06:27.095Z] [856.856567] [INFO] [service::compute_actor:301] finished processing contents of length: 2097150
+[S2] [2020-10-21T19:06:27.095Z] [856.856567] [INFO] [service::compute_actor:85] [TRACE] [40156] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:06:27.095Z] [856.856567] [INFO] [service::compute_actor:111] [TRACE] [40156] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:06:32.355Z] [862.116943] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52850 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000159
+[S2] [2020-10-21T19:06:32.355Z] [862.117004] [INFO] [service::compute_actor:73] [TRACE] [40159] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:06:32.355Z] [862.117065] [INFO] [service::compute_actor:217] [TRACE] [40159] [FILE_READ_START] [process] file: /file_40159.txt
+[S2] [2020-10-21T19:06:32.355Z] [862.117188] [INFO] [service::compute_actor:231] [TRACE] [40159] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:06:32.355Z] [862.117188] [INFO] [service::compute_actor:378] Start fetching file /file_40159.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:06:32.398Z] [862.159973] [INFO] [service::compute_actor:238] [TRACE] [40159] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:06:32.401Z] [862.162842] [INFO] [service::compute_actor:259] Finish fetching file /file_40159.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:06:32.402Z] [862.163574] [INFO] [service::compute_actor:279] [TRACE] [40159] [DATA_PROCESS_START] [process] data len 2097150
+[S2] [2020-10-21T19:06:32.402Z] [862.163574] [INFO] [service::compute_actor:284] processing contents of length: 2097150
+[S2] [2020-10-21T19:06:32.531Z] [862.292725] [INFO] [service::compute_actor:296] [TRACE] [40159] [DATA_PROCESS_END] [process] data len 2097150
+[S2] [2020-10-21T19:06:32.531Z] [862.292725] [INFO] [service::compute_actor:301] finished processing contents of length: 2097150
+[S2] [2020-10-21T19:06:32.531Z] [862.292786] [INFO] [service::compute_actor:85] [TRACE] [40159] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:06:32.531Z] [862.292786] [INFO] [service::compute_actor:111] [TRACE] [40159] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:06:37.793Z] [867.555054] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52856 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000165
+[S2] [2020-10-21T19:06:37.793Z] [867.555115] [INFO] [service::compute_actor:73] [TRACE] [40162] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:06:37.793Z] [867.555176] [INFO] [service::compute_actor:217] [TRACE] [40162] [FILE_READ_START] [process] file: /file_40162.txt
+[S2] [2020-10-21T19:06:37.794Z] [867.555298] [INFO] [service::compute_actor:231] [TRACE] [40162] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:06:37.794Z] [867.555298] [INFO] [service::compute_actor:378] Start fetching file /file_40162.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:06:37.835Z] [867.596558] [INFO] [service::compute_actor:238] [TRACE] [40162] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:06:37.838Z] [867.599426] [INFO] [service::compute_actor:259] Finish fetching file /file_40162.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:06:37.838Z] [867.600220] [INFO] [service::compute_actor:279] [TRACE] [40162] [DATA_PROCESS_START] [process] data len 2097150
+[S2] [2020-10-21T19:06:37.838Z] [867.600220] [INFO] [service::compute_actor:284] processing contents of length: 2097150
+[S2] [2020-10-21T19:06:37.942Z] [867.703491] [INFO] [service::compute_actor:296] [TRACE] [40162] [DATA_PROCESS_END] [process] data len 2097150
+[S2] [2020-10-21T19:06:37.942Z] [867.703491] [INFO] [service::compute_actor:301] finished processing contents of length: 2097150
+[S2] [2020-10-21T19:06:37.942Z] [867.703491] [INFO] [service::compute_actor:85] [TRACE] [40162] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:06:37.942Z] [867.703491] [INFO] [service::compute_actor:111] [TRACE] [40162] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:06:43.211Z] [872.972778] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52862 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000164
+[S2] [2020-10-21T19:06:43.211Z] [872.972900] [INFO] [service::compute_actor:73] [TRACE] [40165] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:06:43.211Z] [872.972900] [INFO] [service::compute_actor:217] [TRACE] [40165] [FILE_READ_START] [process] file: /file_40165.txt
+[S2] [2020-10-21T19:06:43.211Z] [872.973022] [INFO] [service::compute_actor:231] [TRACE] [40165] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:06:43.211Z] [872.973022] [INFO] [service::compute_actor:378] Start fetching file /file_40165.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:06:43.251Z] [873.013000] [INFO] [service::compute_actor:238] [TRACE] [40165] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:06:43.254Z] [873.015869] [INFO] [service::compute_actor:259] Finish fetching file /file_40165.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:06:43.255Z] [873.016602] [INFO] [service::compute_actor:279] [TRACE] [40165] [DATA_PROCESS_START] [process] data len 2097150
+[S2] [2020-10-21T19:06:43.255Z] [873.016602] [INFO] [service::compute_actor:284] processing contents of length: 2097150
+[S2] [2020-10-21T19:06:43.364Z] [873.125916] [INFO] [service::compute_actor:296] [TRACE] [40165] [DATA_PROCESS_END] [process] data len 2097150
+[S2] [2020-10-21T19:06:43.364Z] [873.125916] [INFO] [service::compute_actor:301] finished processing contents of length: 2097150
+[S2] [2020-10-21T19:06:43.364Z] [873.125916] [INFO] [service::compute_actor:85] [TRACE] [40165] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:06:43.364Z] [873.125977] [INFO] [service::compute_actor:111] [TRACE] [40165] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:06:48.655Z] [878.417236] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52868 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.026814
+[S2] [2020-10-21T19:06:48.656Z] [878.417297] [INFO] [service::compute_actor:73] [TRACE] [40168] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:06:48.656Z] [878.417358] [INFO] [service::compute_actor:194] [TRACE] [40168] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:06:48.656Z] [878.417358] [INFO] [service::compute_actor:198] processing data of length: 2097150
+[S2] [2020-10-21T19:06:48.816Z] [878.578186] [INFO] [service::compute_actor:210] [TRACE] [40168] [DATA_PROCESS_END] [process] data len 2097150
+[S2] [2020-10-21T19:06:48.816Z] [878.578247] [INFO] [service::compute_actor:85] [TRACE] [40168] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:06:48.816Z] [878.578247] [INFO] [service::compute_actor:111] [TRACE] [40168] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:06:54.109Z] [883.871094] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52872 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.029159
+[S2] [2020-10-21T19:06:54.109Z] [883.871155] [INFO] [service::compute_actor:73] [TRACE] [40171] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:06:54.109Z] [883.871216] [INFO] [service::compute_actor:194] [TRACE] [40171] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:06:54.109Z] [883.871216] [INFO] [service::compute_actor:198] processing data of length: 2097150
+[S2] [2020-10-21T19:06:54.217Z] [883.978455] [INFO] [service::compute_actor:210] [TRACE] [40171] [DATA_PROCESS_END] [process] data len 2097150
+[S2] [2020-10-21T19:06:54.217Z] [883.978455] [INFO] [service::compute_actor:85] [TRACE] [40171] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:06:54.217Z] [883.978455] [INFO] [service::compute_actor:111] [TRACE] [40171] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:06:59.501Z] [889.263062] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52876 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.024918
+[S2] [2020-10-21T19:06:59.501Z] [889.263123] [INFO] [service::compute_actor:73] [TRACE] [40174] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:06:59.501Z] [889.263184] [INFO] [service::compute_actor:194] [TRACE] [40174] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:06:59.501Z] [889.263184] [INFO] [service::compute_actor:198] processing data of length: 2097150
+[S2] [2020-10-21T19:06:59.617Z] [889.378418] [INFO] [service::compute_actor:210] [TRACE] [40174] [DATA_PROCESS_END] [process] data len 2097150
+[S2] [2020-10-21T19:06:59.617Z] [889.378418] [INFO] [service::compute_actor:85] [TRACE] [40174] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:06:59.617Z] [889.378418] [INFO] [service::compute_actor:111] [TRACE] [40174] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:07:04.911Z] [894.672302] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52880 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.026399
+[S2] [2020-10-21T19:07:04.911Z] [894.672363] [INFO] [service::compute_actor:73] [TRACE] [40177] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:07:04.911Z] [894.672424] [INFO] [service::compute_actor:194] [TRACE] [40177] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:07:04.911Z] [894.672424] [INFO] [service::compute_actor:198] processing data of length: 2097150
+[S2] [2020-10-21T19:07:05.056Z] [894.817749] [INFO] [service::compute_actor:210] [TRACE] [40177] [DATA_PROCESS_END] [process] data len 2097150
+[S2] [2020-10-21T19:07:05.056Z] [894.817749] [INFO] [service::compute_actor:85] [TRACE] [40177] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:07:05.056Z] [894.817810] [INFO] [service::compute_actor:111] [TRACE] [40177] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:07:10.346Z] [900.107666] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52884 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.025587
+[S2] [2020-10-21T19:07:10.346Z] [900.107727] [INFO] [service::compute_actor:73] [TRACE] [40180] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:07:10.346Z] [900.107788] [INFO] [service::compute_actor:194] [TRACE] [40180] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:07:10.346Z] [900.107788] [INFO] [service::compute_actor:198] processing data of length: 2097150
+[S2] [2020-10-21T19:07:10.456Z] [900.217285] [INFO] [service::compute_actor:210] [TRACE] [40180] [DATA_PROCESS_END] [process] data len 2097150
+[S2] [2020-10-21T19:07:10.456Z] [900.217285] [INFO] [service::compute_actor:85] [TRACE] [40180] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:07:10.456Z] [900.217346] [INFO] [service::compute_actor:111] [TRACE] [40180] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:08:10.925Z] [960.686829] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52888 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000158
+[S2] [2020-10-21T19:08:10.925Z] [960.686890] [INFO] [service::compute_actor:73] [TRACE] [40213] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:08:10.925Z] [960.686951] [INFO] [service::compute_actor:217] [TRACE] [40213] [FILE_READ_START] [process] file: /file_40213.txt
+[S2] [2020-10-21T19:08:10.925Z] [960.687073] [INFO] [service::compute_actor:231] [TRACE] [40213] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:08:10.925Z] [960.687134] [INFO] [service::compute_actor:378] Start fetching file /file_40213.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:08:11.011Z] [960.772888] [INFO] [service::compute_actor:238] [TRACE] [40213] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:08:11.016Z] [960.778015] [INFO] [service::compute_actor:259] Finish fetching file /file_40213.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:08:11.018Z] [960.779358] [INFO] [service::compute_actor:279] [TRACE] [40213] [DATA_PROCESS_START] [process] data len 4194300
+[S2] [2020-10-21T19:08:11.018Z] [960.779358] [INFO] [service::compute_actor:284] processing contents of length: 4194300
+[S2] [2020-10-21T19:08:11.259Z] [961.020813] [INFO] [service::compute_actor:296] [TRACE] [40213] [DATA_PROCESS_END] [process] data len 4194300
+[S2] [2020-10-21T19:08:11.259Z] [961.020813] [INFO] [service::compute_actor:301] finished processing contents of length: 4194300
+[S2] [2020-10-21T19:08:11.259Z] [961.020813] [INFO] [service::compute_actor:85] [TRACE] [40213] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:08:11.259Z] [961.020813] [INFO] [service::compute_actor:111] [TRACE] [40213] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:08:16.525Z] [966.286560] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52894 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000162
+[S2] [2020-10-21T19:08:16.525Z] [966.286682] [INFO] [service::compute_actor:73] [TRACE] [40216] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:08:16.525Z] [966.286682] [INFO] [service::compute_actor:217] [TRACE] [40216] [FILE_READ_START] [process] file: /file_40216.txt
+[S2] [2020-10-21T19:08:16.525Z] [966.286804] [INFO] [service::compute_actor:231] [TRACE] [40216] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:08:16.525Z] [966.286865] [INFO] [service::compute_actor:378] Start fetching file /file_40216.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:08:16.607Z] [966.368958] [INFO] [service::compute_actor:238] [TRACE] [40216] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:08:16.612Z] [966.374084] [INFO] [service::compute_actor:259] Finish fetching file /file_40216.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:08:16.614Z] [966.375366] [INFO] [service::compute_actor:279] [TRACE] [40216] [DATA_PROCESS_START] [process] data len 4194300
+[S2] [2020-10-21T19:08:16.614Z] [966.375366] [INFO] [service::compute_actor:284] processing contents of length: 4194300
+[S2] [2020-10-21T19:08:16.831Z] [966.593140] [INFO] [service::compute_actor:296] [TRACE] [40216] [DATA_PROCESS_END] [process] data len 4194300
+[S2] [2020-10-21T19:08:16.831Z] [966.593201] [INFO] [service::compute_actor:301] finished processing contents of length: 4194300
+[S2] [2020-10-21T19:08:16.831Z] [966.593201] [INFO] [service::compute_actor:85] [TRACE] [40216] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:08:16.831Z] [966.593201] [INFO] [service::compute_actor:111] [TRACE] [40216] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:08:22.108Z] [971.869995] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52900 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000160
+[S2] [2020-10-21T19:08:22.108Z] [971.870117] [INFO] [service::compute_actor:73] [TRACE] [40219] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:08:22.108Z] [971.870178] [INFO] [service::compute_actor:217] [TRACE] [40219] [FILE_READ_START] [process] file: /file_40219.txt
+[S2] [2020-10-21T19:08:22.109Z] [971.870300] [INFO] [service::compute_actor:231] [TRACE] [40219] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:08:22.109Z] [971.870300] [INFO] [service::compute_actor:378] Start fetching file /file_40219.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:08:22.188Z] [971.949402] [INFO] [service::compute_actor:238] [TRACE] [40219] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:08:22.193Z] [971.954651] [INFO] [service::compute_actor:259] Finish fetching file /file_40219.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:08:22.194Z] [971.956055] [INFO] [service::compute_actor:279] [TRACE] [40219] [DATA_PROCESS_START] [process] data len 4194300
+[S2] [2020-10-21T19:08:22.194Z] [971.956116] [INFO] [service::compute_actor:284] processing contents of length: 4194300
+[S2] [2020-10-21T19:08:22.456Z] [972.217346] [INFO] [service::compute_actor:296] [TRACE] [40219] [DATA_PROCESS_END] [process] data len 4194300
+[S2] [2020-10-21T19:08:22.456Z] [972.217346] [INFO] [service::compute_actor:301] finished processing contents of length: 4194300
+[S2] [2020-10-21T19:08:22.456Z] [972.217407] [INFO] [service::compute_actor:85] [TRACE] [40219] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:08:22.456Z] [972.217407] [INFO] [service::compute_actor:111] [TRACE] [40219] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:08:27.724Z] [977.485474] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52906 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000213
+[S2] [2020-10-21T19:08:27.724Z] [977.485535] [INFO] [service::compute_actor:73] [TRACE] [40222] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:08:27.724Z] [977.485596] [INFO] [service::compute_actor:217] [TRACE] [40222] [FILE_READ_START] [process] file: /file_40222.txt
+[S2] [2020-10-21T19:08:27.724Z] [977.485718] [INFO] [service::compute_actor:231] [TRACE] [40222] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:08:27.724Z] [977.485718] [INFO] [service::compute_actor:378] Start fetching file /file_40222.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:08:27.808Z] [977.570007] [INFO] [service::compute_actor:238] [TRACE] [40222] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:08:27.813Z] [977.575134] [INFO] [service::compute_actor:259] Finish fetching file /file_40222.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:08:27.815Z] [977.576477] [INFO] [service::compute_actor:279] [TRACE] [40222] [DATA_PROCESS_START] [process] data len 4194300
+[S2] [2020-10-21T19:08:27.815Z] [977.576477] [INFO] [service::compute_actor:284] processing contents of length: 4194300
+[S2] [2020-10-21T19:08:28.068Z] [977.830078] [INFO] [service::compute_actor:296] [TRACE] [40222] [DATA_PROCESS_END] [process] data len 4194300
+[S2] [2020-10-21T19:08:28.068Z] [977.830139] [INFO] [service::compute_actor:301] finished processing contents of length: 4194300
+[S2] [2020-10-21T19:08:28.068Z] [977.830139] [INFO] [service::compute_actor:85] [TRACE] [40222] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:08:28.068Z] [977.830139] [INFO] [service::compute_actor:111] [TRACE] [40222] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:08:33.336Z] [983.098083] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52912 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000160
+[S2] [2020-10-21T19:08:33.336Z] [983.098206] [INFO] [service::compute_actor:73] [TRACE] [40225] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:08:33.336Z] [983.098206] [INFO] [service::compute_actor:217] [TRACE] [40225] [FILE_READ_START] [process] file: /file_40225.txt
+[S2] [2020-10-21T19:08:33.337Z] [983.098328] [INFO] [service::compute_actor:231] [TRACE] [40225] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:08:33.337Z] [983.098389] [INFO] [service::compute_actor:378] Start fetching file /file_40225.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:08:33.407Z] [983.169250] [INFO] [service::compute_actor:238] [TRACE] [40225] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:08:33.413Z] [983.174438] [INFO] [service::compute_actor:259] Finish fetching file /file_40225.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:08:33.414Z] [983.175537] [INFO] [service::compute_actor:279] [TRACE] [40225] [DATA_PROCESS_START] [process] data len 4194300
+[S2] [2020-10-21T19:08:33.414Z] [983.175537] [INFO] [service::compute_actor:284] processing contents of length: 4194300
+[S2] [2020-10-21T19:08:33.660Z] [983.421509] [INFO] [service::compute_actor:296] [TRACE] [40225] [DATA_PROCESS_END] [process] data len 4194300
+[S2] [2020-10-21T19:08:33.660Z] [983.421509] [INFO] [service::compute_actor:301] finished processing contents of length: 4194300
+[S2] [2020-10-21T19:08:33.660Z] [983.421509] [INFO] [service::compute_actor:85] [TRACE] [40225] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:08:33.660Z] [983.421509] [INFO] [service::compute_actor:111] [TRACE] [40225] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:08:38.979Z] [988.740906] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52918 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.049351
+[S2] [2020-10-21T19:08:38.979Z] [988.741028] [INFO] [service::compute_actor:73] [TRACE] [40228] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:08:38.979Z] [988.741028] [INFO] [service::compute_actor:194] [TRACE] [40228] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:08:38.979Z] [988.741089] [INFO] [service::compute_actor:198] processing data of length: 4194300
+[S2] [2020-10-21T19:08:39.200Z] [988.961792] [INFO] [service::compute_actor:210] [TRACE] [40228] [DATA_PROCESS_END] [process] data len 4194300
+[S2] [2020-10-21T19:08:39.200Z] [988.961792] [INFO] [service::compute_actor:85] [TRACE] [40228] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:08:39.200Z] [988.961792] [INFO] [service::compute_actor:111] [TRACE] [40228] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:08:44.526Z] [994.287354] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52922 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.050893
+[S2] [2020-10-21T19:08:44.526Z] [994.287415] [INFO] [service::compute_actor:73] [TRACE] [40231] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:08:44.526Z] [994.287476] [INFO] [service::compute_actor:194] [TRACE] [40231] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:08:44.526Z] [994.287476] [INFO] [service::compute_actor:198] processing data of length: 4194300
+[S2] [2020-10-21T19:08:44.793Z] [994.554688] [INFO] [service::compute_actor:210] [TRACE] [40231] [DATA_PROCESS_END] [process] data len 4194300
+[S2] [2020-10-21T19:08:44.793Z] [994.554688] [INFO] [service::compute_actor:85] [TRACE] [40231] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:08:44.793Z] [994.554688] [INFO] [service::compute_actor:111] [TRACE] [40231] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:08:50.125Z] [999.886292] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52926 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.046928
+[S2] [2020-10-21T19:08:50.125Z] [999.886353] [INFO] [service::compute_actor:73] [TRACE] [40234] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:08:50.125Z] [999.886414] [INFO] [service::compute_actor:194] [TRACE] [40234] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:08:50.125Z] [999.886414] [INFO] [service::compute_actor:198] processing data of length: 4194300
+[S2] [2020-10-21T19:08:50.367Z] [1000.128906] [INFO] [service::compute_actor:210] [TRACE] [40234] [DATA_PROCESS_END] [process] data len 4194300
+[S2] [2020-10-21T19:08:50.367Z] [1000.128906] [INFO] [service::compute_actor:85] [TRACE] [40234] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:08:50.367Z] [1000.128906] [INFO] [service::compute_actor:111] [TRACE] [40234] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:08:55.704Z] [1005.465698] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52930 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.070224
+[S2] [2020-10-21T19:08:55.704Z] [1005.465820] [INFO] [service::compute_actor:73] [TRACE] [40237] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:08:55.704Z] [1005.465820] [INFO] [service::compute_actor:194] [TRACE] [40237] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:08:55.704Z] [1005.465881] [INFO] [service::compute_actor:198] processing data of length: 4194300
+[S2] [2020-10-21T19:08:55.907Z] [1005.668945] [INFO] [service::compute_actor:210] [TRACE] [40237] [DATA_PROCESS_END] [process] data len 4194300
+[S2] [2020-10-21T19:08:55.907Z] [1005.668945] [INFO] [service::compute_actor:85] [TRACE] [40237] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:08:55.907Z] [1005.669006] [INFO] [service::compute_actor:111] [TRACE] [40237] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:09:01.234Z] [1010.995850] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52934 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.045393
+[S2] [2020-10-21T19:09:01.234Z] [1010.995972] [INFO] [service::compute_actor:73] [TRACE] [40240] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:09:01.234Z] [1010.995972] [INFO] [service::compute_actor:194] [TRACE] [40240] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:09:01.234Z] [1010.995972] [INFO] [service::compute_actor:198] processing data of length: 4194300
+[S2] [2020-10-21T19:09:01.461Z] [1011.222717] [INFO] [service::compute_actor:210] [TRACE] [40240] [DATA_PROCESS_END] [process] data len 4194300
+[S2] [2020-10-21T19:09:01.461Z] [1011.222778] [INFO] [service::compute_actor:85] [TRACE] [40240] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:09:01.461Z] [1011.222778] [INFO] [service::compute_actor:111] [TRACE] [40240] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:10:04.934Z] [1074.695557] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52938 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000158
+[S2] [2020-10-21T19:10:04.934Z] [1074.695557] [INFO] [service::compute_actor:73] [TRACE] [40273] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:10:04.934Z] [1074.695679] [INFO] [service::compute_actor:217] [TRACE] [40273] [FILE_READ_START] [process] file: /file_40273.txt
+[S2] [2020-10-21T19:10:04.934Z] [1074.695801] [INFO] [service::compute_actor:231] [TRACE] [40273] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:10:04.934Z] [1074.695801] [INFO] [service::compute_actor:378] Start fetching file /file_40273.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:10:05.051Z] [1074.812622] [INFO] [service::compute_actor:238] [TRACE] [40273] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:10:05.060Z] [1074.822144] [INFO] [service::compute_actor:259] Finish fetching file /file_40273.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:10:05.063Z] [1074.824341] [INFO] [service::compute_actor:279] [TRACE] [40273] [DATA_PROCESS_START] [process] data len 8388600
+[S2] [2020-10-21T19:10:05.063Z] [1074.824341] [INFO] [service::compute_actor:284] processing contents of length: 8388600
+[S2] [2020-10-21T19:10:05.530Z] [1075.291382] [INFO] [service::compute_actor:296] [TRACE] [40273] [DATA_PROCESS_END] [process] data len 8388600
+[S2] [2020-10-21T19:10:05.530Z] [1075.291382] [INFO] [service::compute_actor:301] finished processing contents of length: 8388600
+[S2] [2020-10-21T19:10:05.530Z] [1075.291504] [INFO] [service::compute_actor:85] [TRACE] [40273] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:10:05.530Z] [1075.291504] [INFO] [service::compute_actor:111] [TRACE] [40273] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:10:10.812Z] [1080.574097] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52944 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000164
+[S2] [2020-10-21T19:10:10.812Z] [1080.574219] [INFO] [service::compute_actor:73] [TRACE] [40276] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:10:10.812Z] [1080.574219] [INFO] [service::compute_actor:217] [TRACE] [40276] [FILE_READ_START] [process] file: /file_40276.txt
+[S2] [2020-10-21T19:10:10.813Z] [1080.574341] [INFO] [service::compute_actor:231] [TRACE] [40276] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:10:10.813Z] [1080.574341] [INFO] [service::compute_actor:378] Start fetching file /file_40276.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:10:10.938Z] [1080.699829] [INFO] [service::compute_actor:238] [TRACE] [40276] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:10:10.946Z] [1080.708008] [INFO] [service::compute_actor:259] Finish fetching file /file_40276.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:10:10.953Z] [1080.714722] [INFO] [service::compute_actor:279] [TRACE] [40276] [DATA_PROCESS_START] [process] data len 8388600
+[S2] [2020-10-21T19:10:10.953Z] [1080.714722] [INFO] [service::compute_actor:284] processing contents of length: 8388600
+[S2] [2020-10-21T19:10:11.476Z] [1081.237549] [INFO] [service::compute_actor:296] [TRACE] [40276] [DATA_PROCESS_END] [process] data len 8388600
+[S2] [2020-10-21T19:10:11.476Z] [1081.237549] [INFO] [service::compute_actor:301] finished processing contents of length: 8388600
+[S2] [2020-10-21T19:10:11.476Z] [1081.237549] [INFO] [service::compute_actor:85] [TRACE] [40276] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:10:11.476Z] [1081.237549] [INFO] [service::compute_actor:111] [TRACE] [40276] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:10:16.776Z] [1086.538208] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52950 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000156
+[S2] [2020-10-21T19:10:16.776Z] [1086.538208] [INFO] [service::compute_actor:73] [TRACE] [40279] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:10:16.777Z] [1086.538330] [INFO] [service::compute_actor:217] [TRACE] [40279] [FILE_READ_START] [process] file: /file_40279.txt
+[S2] [2020-10-21T19:10:16.777Z] [1086.538452] [INFO] [service::compute_actor:231] [TRACE] [40279] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:10:16.777Z] [1086.538452] [INFO] [service::compute_actor:378] Start fetching file /file_40279.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:10:16.879Z] [1086.640625] [INFO] [service::compute_actor:238] [TRACE] [40279] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:10:16.888Z] [1086.649902] [INFO] [service::compute_actor:259] Finish fetching file /file_40279.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:10:16.890Z] [1086.651611] [INFO] [service::compute_actor:279] [TRACE] [40279] [DATA_PROCESS_START] [process] data len 8388600
+[S2] [2020-10-21T19:10:16.890Z] [1086.651611] [INFO] [service::compute_actor:284] processing contents of length: 8388600
+[S2] [2020-10-21T19:10:17.325Z] [1087.086426] [INFO] [service::compute_actor:296] [TRACE] [40279] [DATA_PROCESS_END] [process] data len 8388600
+[S2] [2020-10-21T19:10:17.325Z] [1087.086426] [INFO] [service::compute_actor:301] finished processing contents of length: 8388600
+[S2] [2020-10-21T19:10:17.325Z] [1087.086426] [INFO] [service::compute_actor:85] [TRACE] [40279] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:10:17.325Z] [1087.086548] [INFO] [service::compute_actor:111] [TRACE] [40279] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:10:22.621Z] [1092.382446] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52956 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000165
+[S2] [2020-10-21T19:10:22.621Z] [1092.382568] [INFO] [service::compute_actor:73] [TRACE] [40282] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:10:22.621Z] [1092.382568] [INFO] [service::compute_actor:217] [TRACE] [40282] [FILE_READ_START] [process] file: /file_40282.txt
+[S2] [2020-10-21T19:10:22.621Z] [1092.382690] [INFO] [service::compute_actor:231] [TRACE] [40282] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:10:22.621Z] [1092.382690] [INFO] [service::compute_actor:378] Start fetching file /file_40282.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:10:22.754Z] [1092.515869] [INFO] [service::compute_actor:238] [TRACE] [40282] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:10:22.763Z] [1092.525024] [INFO] [service::compute_actor:259] Finish fetching file /file_40282.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:10:22.767Z] [1092.528809] [INFO] [service::compute_actor:279] [TRACE] [40282] [DATA_PROCESS_START] [process] data len 8388600
+[S2] [2020-10-21T19:10:22.767Z] [1092.528809] [INFO] [service::compute_actor:284] processing contents of length: 8388600
+[S2] [2020-10-21T19:10:23.227Z] [1092.989136] [INFO] [service::compute_actor:296] [TRACE] [40282] [DATA_PROCESS_END] [process] data len 8388600
+[S2] [2020-10-21T19:10:23.227Z] [1092.989136] [INFO] [service::compute_actor:301] finished processing contents of length: 8388600
+[S2] [2020-10-21T19:10:23.227Z] [1092.989136] [INFO] [service::compute_actor:85] [TRACE] [40282] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:10:23.227Z] [1092.989258] [INFO] [service::compute_actor:111] [TRACE] [40282] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:10:28.515Z] [1098.276245] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52962 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000156
+[S2] [2020-10-21T19:10:28.515Z] [1098.276367] [INFO] [service::compute_actor:73] [TRACE] [40285] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:10:28.515Z] [1098.276489] [INFO] [service::compute_actor:217] [TRACE] [40285] [FILE_READ_START] [process] file: /file_40285.txt
+[S2] [2020-10-21T19:10:28.515Z] [1098.276611] [INFO] [service::compute_actor:231] [TRACE] [40285] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:10:28.515Z] [1098.276611] [INFO] [service::compute_actor:378] Start fetching file /file_40285.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:10:28.647Z] [1098.408813] [INFO] [service::compute_actor:238] [TRACE] [40285] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:10:28.656Z] [1098.417480] [INFO] [service::compute_actor:259] Finish fetching file /file_40285.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:10:28.658Z] [1098.419556] [INFO] [service::compute_actor:279] [TRACE] [40285] [DATA_PROCESS_START] [process] data len 8388600
+[S2] [2020-10-21T19:10:28.658Z] [1098.419678] [INFO] [service::compute_actor:284] processing contents of length: 8388600
+[S2] [2020-10-21T19:10:29.109Z] [1098.870850] [INFO] [service::compute_actor:296] [TRACE] [40285] [DATA_PROCESS_END] [process] data len 8388600
+[S2] [2020-10-21T19:10:29.109Z] [1098.870850] [INFO] [service::compute_actor:301] finished processing contents of length: 8388600
+[S2] [2020-10-21T19:10:29.109Z] [1098.870850] [INFO] [service::compute_actor:85] [TRACE] [40285] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:10:29.109Z] [1098.870972] [INFO] [service::compute_actor:111] [TRACE] [40285] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:10:34.512Z] [1104.273682] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52968 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.108822
+[S2] [2020-10-21T19:10:34.512Z] [1104.273804] [INFO] [service::compute_actor:73] [TRACE] [40288] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:10:34.512Z] [1104.273804] [INFO] [service::compute_actor:194] [TRACE] [40288] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:10:34.512Z] [1104.273804] [INFO] [service::compute_actor:198] processing data of length: 8388600
+[S2] [2020-10-21T19:10:34.962Z] [1104.723755] [INFO] [service::compute_actor:210] [TRACE] [40288] [DATA_PROCESS_END] [process] data len 8388600
+[S2] [2020-10-21T19:10:34.962Z] [1104.723755] [INFO] [service::compute_actor:85] [TRACE] [40288] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:10:34.962Z] [1104.723755] [INFO] [service::compute_actor:111] [TRACE] [40288] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:10:40.362Z] [1110.123291] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52972 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.093411
+[S2] [2020-10-21T19:10:40.362Z] [1110.123413] [INFO] [service::compute_actor:73] [TRACE] [40291] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:10:40.362Z] [1110.123413] [INFO] [service::compute_actor:194] [TRACE] [40291] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:10:40.362Z] [1110.123535] [INFO] [service::compute_actor:198] processing data of length: 8388600
+[S2] [2020-10-21T19:10:40.792Z] [1110.554199] [INFO] [service::compute_actor:210] [TRACE] [40291] [DATA_PROCESS_END] [process] data len 8388600
+[S2] [2020-10-21T19:10:40.792Z] [1110.554199] [INFO] [service::compute_actor:85] [TRACE] [40291] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:10:40.792Z] [1110.554199] [INFO] [service::compute_actor:111] [TRACE] [40291] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:10:46.173Z] [1115.935181] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52976 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.089827
+[S2] [2020-10-21T19:10:46.174Z] [1115.935303] [INFO] [service::compute_actor:73] [TRACE] [40294] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:10:46.174Z] [1115.935303] [INFO] [service::compute_actor:194] [TRACE] [40294] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:10:46.174Z] [1115.935303] [INFO] [service::compute_actor:198] processing data of length: 8388600
+[S2] [2020-10-21T19:10:46.644Z] [1116.406250] [INFO] [service::compute_actor:210] [TRACE] [40294] [DATA_PROCESS_END] [process] data len 8388600
+[S2] [2020-10-21T19:10:46.645Z] [1116.406250] [INFO] [service::compute_actor:85] [TRACE] [40294] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:10:46.645Z] [1116.406250] [INFO] [service::compute_actor:111] [TRACE] [40294] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:10:52.033Z] [1121.794800] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52980 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.108962
+[S2] [2020-10-21T19:10:52.033Z] [1121.794922] [INFO] [service::compute_actor:73] [TRACE] [40297] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:10:52.033Z] [1121.794922] [INFO] [service::compute_actor:194] [TRACE] [40297] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:10:52.033Z] [1121.795044] [INFO] [service::compute_actor:198] processing data of length: 8388600
+[S2] [2020-10-21T19:10:52.554Z] [1122.315552] [INFO] [service::compute_actor:210] [TRACE] [40297] [DATA_PROCESS_END] [process] data len 8388600
+[S2] [2020-10-21T19:10:52.554Z] [1122.315674] [INFO] [service::compute_actor:85] [TRACE] [40297] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:10:52.554Z] [1122.315674] [INFO] [service::compute_actor:111] [TRACE] [40297] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:10:57.944Z] [1127.705933] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52984 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.113462
+[S2] [2020-10-21T19:10:57.944Z] [1127.705933] [INFO] [service::compute_actor:73] [TRACE] [40300] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:10:57.944Z] [1127.706055] [INFO] [service::compute_actor:194] [TRACE] [40300] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:10:57.944Z] [1127.706055] [INFO] [service::compute_actor:198] processing data of length: 8388600
+[S2] [2020-10-21T19:10:58.418Z] [1128.179443] [INFO] [service::compute_actor:210] [TRACE] [40300] [DATA_PROCESS_END] [process] data len 8388600
+[S2] [2020-10-21T19:10:58.418Z] [1128.179443] [INFO] [service::compute_actor:85] [TRACE] [40300] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:10:58.418Z] [1128.179443] [INFO] [service::compute_actor:111] [TRACE] [40300] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:12:07.887Z] [1197.648682] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52988 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000213
+[S2] [2020-10-21T19:12:07.887Z] [1197.648682] [INFO] [service::compute_actor:73] [TRACE] [40333] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:12:07.887Z] [1197.648804] [INFO] [service::compute_actor:217] [TRACE] [40333] [FILE_READ_START] [process] file: /file_40333.txt
+[S2] [2020-10-21T19:12:07.887Z] [1197.648926] [INFO] [service::compute_actor:231] [TRACE] [40333] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:12:07.887Z] [1197.648926] [INFO] [service::compute_actor:378] Start fetching file /file_40333.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:12:08.110Z] [1197.871460] [INFO] [service::compute_actor:238] [TRACE] [40333] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:12:08.126Z] [1197.887451] [INFO] [service::compute_actor:259] Finish fetching file /file_40333.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:12:08.134Z] [1197.895752] [INFO] [service::compute_actor:279] [TRACE] [40333] [DATA_PROCESS_START] [process] data len 16777210
+[S2] [2020-10-21T19:12:08.134Z] [1197.895752] [INFO] [service::compute_actor:284] processing contents of length: 16777210
+[S2] [2020-10-21T19:12:08.805Z] [1198.566895] [INFO] [service::compute_actor:296] [TRACE] [40333] [DATA_PROCESS_END] [process] data len 16777210
+[S2] [2020-10-21T19:12:08.805Z] [1198.566895] [INFO] [service::compute_actor:301] finished processing contents of length: 16777210
+[S2] [2020-10-21T19:12:08.805Z] [1198.566895] [INFO] [service::compute_actor:85] [TRACE] [40333] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:12:08.805Z] [1198.566895] [INFO] [service::compute_actor:111] [TRACE] [40333] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:12:14.112Z] [1203.873291] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:52994 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000227
+[S2] [2020-10-21T19:12:14.112Z] [1203.873413] [INFO] [service::compute_actor:73] [TRACE] [40336] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:12:14.112Z] [1203.873413] [INFO] [service::compute_actor:217] [TRACE] [40336] [FILE_READ_START] [process] file: /file_40336.txt
+[S2] [2020-10-21T19:12:14.112Z] [1203.873657] [INFO] [service::compute_actor:231] [TRACE] [40336] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:12:14.112Z] [1203.873657] [INFO] [service::compute_actor:378] Start fetching file /file_40336.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:12:14.359Z] [1204.120972] [INFO] [service::compute_actor:238] [TRACE] [40336] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:12:14.374Z] [1204.135376] [INFO] [service::compute_actor:259] Finish fetching file /file_40336.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:12:14.381Z] [1204.142456] [INFO] [service::compute_actor:279] [TRACE] [40336] [DATA_PROCESS_START] [process] data len 16777210
+[S2] [2020-10-21T19:12:14.381Z] [1204.142456] [INFO] [service::compute_actor:284] processing contents of length: 16777210
+[S2] [2020-10-21T19:12:15.053Z] [1204.815308] [INFO] [service::compute_actor:296] [TRACE] [40336] [DATA_PROCESS_END] [process] data len 16777210
+[S2] [2020-10-21T19:12:15.054Z] [1204.815308] [INFO] [service::compute_actor:301] finished processing contents of length: 16777210
+[S2] [2020-10-21T19:12:15.054Z] [1204.815308] [INFO] [service::compute_actor:85] [TRACE] [40336] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:12:15.054Z] [1204.815308] [INFO] [service::compute_actor:111] [TRACE] [40336] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:12:20.412Z] [1210.174194] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53000 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000176
+[S2] [2020-10-21T19:12:20.412Z] [1210.174316] [INFO] [service::compute_actor:73] [TRACE] [40339] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:12:20.413Z] [1210.174316] [INFO] [service::compute_actor:217] [TRACE] [40339] [FILE_READ_START] [process] file: /file_40339.txt
+[S2] [2020-10-21T19:12:20.413Z] [1210.174438] [INFO] [service::compute_actor:231] [TRACE] [40339] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:12:20.413Z] [1210.174438] [INFO] [service::compute_actor:378] Start fetching file /file_40339.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:12:20.636Z] [1210.398193] [INFO] [service::compute_actor:238] [TRACE] [40339] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:12:20.652Z] [1210.414062] [INFO] [service::compute_actor:259] Finish fetching file /file_40339.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:12:20.659Z] [1210.420654] [INFO] [service::compute_actor:279] [TRACE] [40339] [DATA_PROCESS_START] [process] data len 16777210
+[S2] [2020-10-21T19:12:20.659Z] [1210.420654] [INFO] [service::compute_actor:284] processing contents of length: 16777210
+[S2] [2020-10-21T19:12:21.489Z] [1211.250977] [INFO] [service::compute_actor:296] [TRACE] [40339] [DATA_PROCESS_END] [process] data len 16777210
+[S2] [2020-10-21T19:12:21.489Z] [1211.250977] [INFO] [service::compute_actor:301] finished processing contents of length: 16777210
+[S2] [2020-10-21T19:12:21.489Z] [1211.250977] [INFO] [service::compute_actor:85] [TRACE] [40339] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:12:21.489Z] [1211.250977] [INFO] [service::compute_actor:111] [TRACE] [40339] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:12:26.811Z] [1216.572754] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53006 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000171
+[S2] [2020-10-21T19:12:26.811Z] [1216.572876] [INFO] [service::compute_actor:73] [TRACE] [40342] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:12:26.811Z] [1216.572876] [INFO] [service::compute_actor:217] [TRACE] [40342] [FILE_READ_START] [process] file: /file_40342.txt
+[S2] [2020-10-21T19:12:26.811Z] [1216.573120] [INFO] [service::compute_actor:231] [TRACE] [40342] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:12:26.811Z] [1216.573120] [INFO] [service::compute_actor:378] Start fetching file /file_40342.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:12:27.042Z] [1216.803345] [INFO] [service::compute_actor:238] [TRACE] [40342] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:12:27.055Z] [1216.817261] [INFO] [service::compute_actor:259] Finish fetching file /file_40342.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:12:27.062Z] [1216.823975] [INFO] [service::compute_actor:279] [TRACE] [40342] [DATA_PROCESS_START] [process] data len 16777210
+[S2] [2020-10-21T19:12:27.062Z] [1216.823975] [INFO] [service::compute_actor:284] processing contents of length: 16777210
+[S2] [2020-10-21T19:12:27.892Z] [1217.654053] [INFO] [service::compute_actor:296] [TRACE] [40342] [DATA_PROCESS_END] [process] data len 16777210
+[S2] [2020-10-21T19:12:27.892Z] [1217.654175] [INFO] [service::compute_actor:301] finished processing contents of length: 16777210
+[S2] [2020-10-21T19:12:27.892Z] [1217.654175] [INFO] [service::compute_actor:85] [TRACE] [40342] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:12:27.892Z] [1217.654175] [INFO] [service::compute_actor:111] [TRACE] [40342] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:12:33.217Z] [1222.978394] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53012 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000145
+[S2] [2020-10-21T19:12:33.217Z] [1222.978516] [INFO] [service::compute_actor:73] [TRACE] [40345] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:12:33.217Z] [1222.978516] [INFO] [service::compute_actor:217] [TRACE] [40345] [FILE_READ_START] [process] file: /file_40345.txt
+[S2] [2020-10-21T19:12:33.217Z] [1222.978638] [INFO] [service::compute_actor:231] [TRACE] [40345] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:12:33.217Z] [1222.978760] [INFO] [service::compute_actor:378] Start fetching file /file_40345.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:12:33.438Z] [1223.199707] [INFO] [service::compute_actor:238] [TRACE] [40345] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:12:33.455Z] [1223.216553] [INFO] [service::compute_actor:259] Finish fetching file /file_40345.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:12:33.463Z] [1223.224854] [INFO] [service::compute_actor:279] [TRACE] [40345] [DATA_PROCESS_START] [process] data len 16777210
+[S2] [2020-10-21T19:12:33.463Z] [1223.224854] [INFO] [service::compute_actor:284] processing contents of length: 16777210
+[S2] [2020-10-21T19:12:34.310Z] [1224.072144] [INFO] [service::compute_actor:296] [TRACE] [40345] [DATA_PROCESS_END] [process] data len 16777210
+[S2] [2020-10-21T19:12:34.310Z] [1224.072144] [INFO] [service::compute_actor:301] finished processing contents of length: 16777210
+[S2] [2020-10-21T19:12:34.310Z] [1224.072144] [INFO] [service::compute_actor:85] [TRACE] [40345] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:12:34.310Z] [1224.072144] [INFO] [service::compute_actor:111] [TRACE] [40345] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:12:39.890Z] [1229.652222] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53018 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.215813
+[S2] [2020-10-21T19:12:39.891Z] [1229.652344] [INFO] [service::compute_actor:73] [TRACE] [40348] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:12:39.891Z] [1229.652344] [INFO] [service::compute_actor:194] [TRACE] [40348] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:12:39.891Z] [1229.652466] [INFO] [service::compute_actor:198] processing data of length: 16777210
+[S2] [2020-10-21T19:12:40.727Z] [1230.488647] [INFO] [service::compute_actor:210] [TRACE] [40348] [DATA_PROCESS_END] [process] data len 16777210
+[S2] [2020-10-21T19:12:40.727Z] [1230.488647] [INFO] [service::compute_actor:85] [TRACE] [40348] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:12:40.727Z] [1230.488647] [INFO] [service::compute_actor:111] [TRACE] [40348] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:12:46.258Z] [1236.019653] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53022 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.191499
+[S2] [2020-10-21T19:12:46.258Z] [1236.019775] [INFO] [service::compute_actor:73] [TRACE] [40351] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:12:46.258Z] [1236.019775] [INFO] [service::compute_actor:194] [TRACE] [40351] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:12:46.258Z] [1236.019775] [INFO] [service::compute_actor:198] processing data of length: 16777210
+[S2] [2020-10-21T19:12:47.111Z] [1236.872925] [INFO] [service::compute_actor:210] [TRACE] [40351] [DATA_PROCESS_END] [process] data len 16777210
+[S2] [2020-10-21T19:12:47.111Z] [1236.872925] [INFO] [service::compute_actor:85] [TRACE] [40351] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:12:47.111Z] [1236.872925] [INFO] [service::compute_actor:111] [TRACE] [40351] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:12:52.683Z] [1242.444824] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53026 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.193693
+[S2] [2020-10-21T19:12:52.683Z] [1242.444824] [INFO] [service::compute_actor:73] [TRACE] [40354] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:12:52.683Z] [1242.444946] [INFO] [service::compute_actor:194] [TRACE] [40354] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:12:52.683Z] [1242.444946] [INFO] [service::compute_actor:198] processing data of length: 16777210
+[S2] [2020-10-21T19:12:53.524Z] [1243.285400] [INFO] [service::compute_actor:210] [TRACE] [40354] [DATA_PROCESS_END] [process] data len 16777210
+[S2] [2020-10-21T19:12:53.524Z] [1243.285400] [INFO] [service::compute_actor:85] [TRACE] [40354] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:12:53.524Z] [1243.285400] [INFO] [service::compute_actor:111] [TRACE] [40354] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:12:59.062Z] [1248.823975] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53030 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.184206
+[S2] [2020-10-21T19:12:59.062Z] [1248.824097] [INFO] [service::compute_actor:73] [TRACE] [40357] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:12:59.062Z] [1248.824097] [INFO] [service::compute_actor:194] [TRACE] [40357] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:12:59.062Z] [1248.824097] [INFO] [service::compute_actor:198] processing data of length: 16777210
+[S2] [2020-10-21T19:12:59.892Z] [1249.654175] [INFO] [service::compute_actor:210] [TRACE] [40357] [DATA_PROCESS_END] [process] data len 16777210
+[S2] [2020-10-21T19:12:59.892Z] [1249.654175] [INFO] [service::compute_actor:85] [TRACE] [40357] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:12:59.892Z] [1249.654175] [INFO] [service::compute_actor:111] [TRACE] [40357] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:13:05.429Z] [1255.191040] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53034 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.210500
+[S2] [2020-10-21T19:13:05.429Z] [1255.191162] [INFO] [service::compute_actor:73] [TRACE] [40360] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:13:05.429Z] [1255.191162] [INFO] [service::compute_actor:194] [TRACE] [40360] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:13:05.429Z] [1255.191162] [INFO] [service::compute_actor:198] processing data of length: 16777210
+[S2] [2020-10-21T19:13:06.277Z] [1256.039062] [INFO] [service::compute_actor:210] [TRACE] [40360] [DATA_PROCESS_END] [process] data len 16777210
+[S2] [2020-10-21T19:13:06.277Z] [1256.039185] [INFO] [service::compute_actor:85] [TRACE] [40360] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:13:06.277Z] [1256.039185] [INFO] [service::compute_actor:111] [TRACE] [40360] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:14:36.828Z] [1346.589600] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53038 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000220
+[S2] [2020-10-21T19:14:36.828Z] [1346.589600] [INFO] [service::compute_actor:73] [TRACE] [40393] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:14:36.828Z] [1346.589722] [INFO] [service::compute_actor:217] [TRACE] [40393] [FILE_READ_START] [process] file: /file_40393.txt
+[S2] [2020-10-21T19:14:36.828Z] [1346.589844] [INFO] [service::compute_actor:231] [TRACE] [40393] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:14:36.828Z] [1346.589966] [INFO] [service::compute_actor:378] Start fetching file /file_40393.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:14:37.279Z] [1347.040771] [INFO] [service::compute_actor:238] [TRACE] [40393] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:14:37.302Z] [1347.063721] [INFO] [service::compute_actor:259] Finish fetching file /file_40393.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:14:37.333Z] [1347.094360] [INFO] [service::compute_actor:279] [TRACE] [40393] [DATA_PROCESS_START] [process] data len 33554430
+[S2] [2020-10-21T19:14:37.333Z] [1347.094360] [INFO] [service::compute_actor:284] processing contents of length: 33554430
+[S2] [2020-10-21T19:14:39.110Z] [1348.871582] [INFO] [service::compute_actor:296] [TRACE] [40393] [DATA_PROCESS_END] [process] data len 33554430
+[S2] [2020-10-21T19:14:39.110Z] [1348.871582] [INFO] [service::compute_actor:301] finished processing contents of length: 33554430
+[S2] [2020-10-21T19:14:39.112Z] [1348.873535] [INFO] [service::compute_actor:85] [TRACE] [40393] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:14:39.112Z] [1348.873535] [INFO] [service::compute_actor:111] [TRACE] [40393] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:14:44.573Z] [1354.334717] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53044 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000193
+[S2] [2020-10-21T19:14:44.573Z] [1354.334839] [INFO] [service::compute_actor:73] [TRACE] [40396] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:14:44.573Z] [1354.334839] [INFO] [service::compute_actor:217] [TRACE] [40396] [FILE_READ_START] [process] file: /file_40396.txt
+[S2] [2020-10-21T19:14:44.573Z] [1354.334961] [INFO] [service::compute_actor:231] [TRACE] [40396] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:14:44.573Z] [1354.335083] [INFO] [service::compute_actor:378] Start fetching file /file_40396.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:14:45.016Z] [1354.777466] [INFO] [service::compute_actor:238] [TRACE] [40396] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:14:45.050Z] [1354.811523] [INFO] [service::compute_actor:259] Finish fetching file /file_40396.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:14:45.089Z] [1354.850952] [INFO] [service::compute_actor:279] [TRACE] [40396] [DATA_PROCESS_START] [process] data len 33554430
+[S2] [2020-10-21T19:14:45.089Z] [1354.851074] [INFO] [service::compute_actor:284] processing contents of length: 33554430
+[S2] [2020-10-21T19:14:46.923Z] [1356.684692] [INFO] [service::compute_actor:296] [TRACE] [40396] [DATA_PROCESS_END] [process] data len 33554430
+[S2] [2020-10-21T19:14:46.923Z] [1356.684692] [INFO] [service::compute_actor:301] finished processing contents of length: 33554430
+[S2] [2020-10-21T19:14:46.925Z] [1356.686646] [INFO] [service::compute_actor:85] [TRACE] [40396] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:14:46.925Z] [1356.686646] [INFO] [service::compute_actor:111] [TRACE] [40396] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:14:52.329Z] [1362.091187] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53050 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000171
+[S2] [2020-10-21T19:14:52.330Z] [1362.091309] [INFO] [service::compute_actor:73] [TRACE] [40399] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:14:52.330Z] [1362.091431] [INFO] [service::compute_actor:217] [TRACE] [40399] [FILE_READ_START] [process] file: /file_40399.txt
+[S2] [2020-10-21T19:14:52.330Z] [1362.091553] [INFO] [service::compute_actor:231] [TRACE] [40399] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:14:52.330Z] [1362.091553] [INFO] [service::compute_actor:378] Start fetching file /file_40399.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:14:52.751Z] [1362.513062] [INFO] [service::compute_actor:238] [TRACE] [40399] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:14:52.777Z] [1362.538940] [INFO] [service::compute_actor:259] Finish fetching file /file_40399.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:14:52.795Z] [1362.557007] [INFO] [service::compute_actor:279] [TRACE] [40399] [DATA_PROCESS_START] [process] data len 33554430
+[S2] [2020-10-21T19:14:52.795Z] [1362.557007] [INFO] [service::compute_actor:284] processing contents of length: 33554430
+[S2] [2020-10-21T19:14:54.427Z] [1364.188477] [INFO] [service::compute_actor:296] [TRACE] [40399] [DATA_PROCESS_END] [process] data len 33554430
+[S2] [2020-10-21T19:14:54.427Z] [1364.188599] [INFO] [service::compute_actor:301] finished processing contents of length: 33554430
+[S2] [2020-10-21T19:14:54.430Z] [1364.191406] [INFO] [service::compute_actor:85] [TRACE] [40399] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:14:54.430Z] [1364.191528] [INFO] [service::compute_actor:111] [TRACE] [40399] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:14:59.867Z] [1369.628662] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53056 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000174
+[S2] [2020-10-21T19:14:59.867Z] [1369.628784] [INFO] [service::compute_actor:73] [TRACE] [40402] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:14:59.867Z] [1369.628906] [INFO] [service::compute_actor:217] [TRACE] [40402] [FILE_READ_START] [process] file: /file_40402.txt
+[S2] [2020-10-21T19:14:59.867Z] [1369.629028] [INFO] [service::compute_actor:231] [TRACE] [40402] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:14:59.867Z] [1369.629028] [INFO] [service::compute_actor:378] Start fetching file /file_40402.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:15:00.293Z] [1370.054443] [INFO] [service::compute_actor:238] [TRACE] [40402] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:15:00.319Z] [1370.080566] [INFO] [service::compute_actor:259] Finish fetching file /file_40402.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:15:00.338Z] [1370.099487] [INFO] [service::compute_actor:279] [TRACE] [40402] [DATA_PROCESS_START] [process] data len 33554430
+[S2] [2020-10-21T19:15:00.338Z] [1370.099487] [INFO] [service::compute_actor:284] processing contents of length: 33554430
+[S2] [2020-10-21T19:15:02.094Z] [1371.855591] [INFO] [service::compute_actor:296] [TRACE] [40402] [DATA_PROCESS_END] [process] data len 33554430
+[S2] [2020-10-21T19:15:02.094Z] [1371.855713] [INFO] [service::compute_actor:301] finished processing contents of length: 33554430
+[S2] [2020-10-21T19:15:02.097Z] [1371.858765] [INFO] [service::compute_actor:85] [TRACE] [40402] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:15:02.097Z] [1371.858887] [INFO] [service::compute_actor:111] [TRACE] [40402] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:15:07.525Z] [1377.286987] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53062 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000167
+[S2] [2020-10-21T19:15:07.525Z] [1377.287109] [INFO] [service::compute_actor:73] [TRACE] [40405] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:15:07.525Z] [1377.287109] [INFO] [service::compute_actor:217] [TRACE] [40405] [FILE_READ_START] [process] file: /file_40405.txt
+[S2] [2020-10-21T19:15:07.525Z] [1377.287231] [INFO] [service::compute_actor:231] [TRACE] [40405] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:15:07.526Z] [1377.287354] [INFO] [service::compute_actor:378] Start fetching file /file_40405.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:15:07.957Z] [1377.718628] [INFO] [service::compute_actor:238] [TRACE] [40405] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:15:07.984Z] [1377.745728] [INFO] [service::compute_actor:259] Finish fetching file /file_40405.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:15:08.028Z] [1377.790161] [INFO] [service::compute_actor:279] [TRACE] [40405] [DATA_PROCESS_START] [process] data len 33554430
+[S2] [2020-10-21T19:15:08.028Z] [1377.790283] [INFO] [service::compute_actor:284] processing contents of length: 33554430
+[S2] [2020-10-21T19:15:09.822Z] [1379.584106] [INFO] [service::compute_actor:296] [TRACE] [40405] [DATA_PROCESS_END] [process] data len 33554430
+[S2] [2020-10-21T19:15:09.822Z] [1379.584106] [INFO] [service::compute_actor:301] finished processing contents of length: 33554430
+[S2] [2020-10-21T19:15:09.824Z] [1379.586060] [INFO] [service::compute_actor:85] [TRACE] [40405] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:15:09.824Z] [1379.586060] [INFO] [service::compute_actor:111] [TRACE] [40405] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:15:15.658Z] [1385.420044] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53068 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.367304
+[S2] [2020-10-21T19:15:15.658Z] [1385.420166] [INFO] [service::compute_actor:73] [TRACE] [40408] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:15:15.658Z] [1385.420166] [INFO] [service::compute_actor:194] [TRACE] [40408] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:15:15.658Z] [1385.420166] [INFO] [service::compute_actor:198] processing data of length: 33554430
+[S2] [2020-10-21T19:15:17.492Z] [1387.253296] [INFO] [service::compute_actor:210] [TRACE] [40408] [DATA_PROCESS_END] [process] data len 33554430
+[S2] [2020-10-21T19:15:17.492Z] [1387.253418] [INFO] [service::compute_actor:85] [TRACE] [40408] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:15:17.492Z] [1387.253418] [INFO] [service::compute_actor:111] [TRACE] [40408] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:15:23.329Z] [1393.090820] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53072 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.352341
+[S2] [2020-10-21T19:15:23.329Z] [1393.090942] [INFO] [service::compute_actor:73] [TRACE] [40411] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:15:23.329Z] [1393.090942] [INFO] [service::compute_actor:194] [TRACE] [40411] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:15:23.329Z] [1393.090942] [INFO] [service::compute_actor:198] processing data of length: 33554430
+[S2] [2020-10-21T19:15:25.153Z] [1394.915039] [INFO] [service::compute_actor:210] [TRACE] [40411] [DATA_PROCESS_END] [process] data len 33554430
+[S2] [2020-10-21T19:15:25.153Z] [1394.915161] [INFO] [service::compute_actor:85] [TRACE] [40411] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:15:25.153Z] [1394.915161] [INFO] [service::compute_actor:111] [TRACE] [40411] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:15:31.073Z] [1400.834961] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53076 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.462019
+[S2] [2020-10-21T19:15:31.073Z] [1400.835083] [INFO] [service::compute_actor:73] [TRACE] [40414] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:15:31.073Z] [1400.835083] [INFO] [service::compute_actor:194] [TRACE] [40414] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:15:31.073Z] [1400.835083] [INFO] [service::compute_actor:198] processing data of length: 33554430
+[S2] [2020-10-21T19:15:32.892Z] [1402.653442] [INFO] [service::compute_actor:210] [TRACE] [40414] [DATA_PROCESS_END] [process] data len 33554430
+[S2] [2020-10-21T19:15:32.892Z] [1402.653564] [INFO] [service::compute_actor:85] [TRACE] [40414] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:15:32.892Z] [1402.653564] [INFO] [service::compute_actor:111] [TRACE] [40414] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:15:38.728Z] [1408.489502] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53080 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.357034
+[S2] [2020-10-21T19:15:38.728Z] [1408.489502] [INFO] [service::compute_actor:73] [TRACE] [40417] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:15:38.728Z] [1408.489624] [INFO] [service::compute_actor:194] [TRACE] [40417] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:15:38.728Z] [1408.489624] [INFO] [service::compute_actor:198] processing data of length: 33554430
+[S2] [2020-10-21T19:15:40.529Z] [1410.290771] [INFO] [service::compute_actor:210] [TRACE] [40417] [DATA_PROCESS_END] [process] data len 33554430
+[S2] [2020-10-21T19:15:40.529Z] [1410.290894] [INFO] [service::compute_actor:85] [TRACE] [40417] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:15:40.529Z] [1410.290894] [INFO] [service::compute_actor:111] [TRACE] [40417] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:15:46.377Z] [1416.138306] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53084 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.402832
+[S2] [2020-10-21T19:15:46.377Z] [1416.138428] [INFO] [service::compute_actor:73] [TRACE] [40420] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:15:46.377Z] [1416.138428] [INFO] [service::compute_actor:194] [TRACE] [40420] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:15:46.377Z] [1416.138428] [INFO] [service::compute_actor:198] processing data of length: 33554430
+[S2] [2020-10-21T19:15:48.191Z] [1417.952759] [INFO] [service::compute_actor:210] [TRACE] [40420] [DATA_PROCESS_END] [process] data len 33554430
+[S2] [2020-10-21T19:15:48.191Z] [1417.952881] [INFO] [service::compute_actor:85] [TRACE] [40420] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:15:48.191Z] [1417.952881] [INFO] [service::compute_actor:111] [TRACE] [40420] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:17:44.496Z] [1534.257568] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53088 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000230
+[S2] [2020-10-21T19:17:44.496Z] [1534.257690] [INFO] [service::compute_actor:73] [TRACE] [40453] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:17:44.496Z] [1534.257690] [INFO] [service::compute_actor:217] [TRACE] [40453] [FILE_READ_START] [process] file: /file_40453.txt
+[S2] [2020-10-21T19:17:44.496Z] [1534.257935] [INFO] [service::compute_actor:231] [TRACE] [40453] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:17:44.496Z] [1534.257935] [INFO] [service::compute_actor:378] Start fetching file /file_40453.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:17:45.332Z] [1535.093628] [INFO] [service::compute_actor:238] [TRACE] [40453] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:17:45.384Z] [1535.145508] [INFO] [service::compute_actor:259] Finish fetching file /file_40453.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:17:45.458Z] [1535.219849] [INFO] [service::compute_actor:279] [TRACE] [40453] [DATA_PROCESS_START] [process] data len 67108860
+[S2] [2020-10-21T19:17:45.458Z] [1535.219849] [INFO] [service::compute_actor:284] processing contents of length: 67108860
+[S2] [2020-10-21T19:17:48.802Z] [1538.563843] [INFO] [service::compute_actor:296] [TRACE] [40453] [DATA_PROCESS_END] [process] data len 67108860
+[S2] [2020-10-21T19:17:48.802Z] [1538.563843] [INFO] [service::compute_actor:301] finished processing contents of length: 67108860
+[S2] [2020-10-21T19:17:48.806Z] [1538.567749] [INFO] [service::compute_actor:85] [TRACE] [40453] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:17:48.806Z] [1538.567749] [INFO] [service::compute_actor:111] [TRACE] [40453] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:17:54.387Z] [1544.148438] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53094 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000194
+[S2] [2020-10-21T19:17:54.387Z] [1544.148560] [INFO] [service::compute_actor:73] [TRACE] [40456] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:17:54.387Z] [1544.148560] [INFO] [service::compute_actor:217] [TRACE] [40456] [FILE_READ_START] [process] file: /file_40456.txt
+[S2] [2020-10-21T19:17:54.387Z] [1544.148682] [INFO] [service::compute_actor:231] [TRACE] [40456] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:17:54.387Z] [1544.148804] [INFO] [service::compute_actor:378] Start fetching file /file_40456.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:17:55.224Z] [1544.985962] [INFO] [service::compute_actor:238] [TRACE] [40456] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:17:55.285Z] [1545.046753] [INFO] [service::compute_actor:259] Finish fetching file /file_40456.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:17:55.366Z] [1545.127319] [INFO] [service::compute_actor:279] [TRACE] [40456] [DATA_PROCESS_START] [process] data len 67108860
+[S2] [2020-10-21T19:17:55.366Z] [1545.127441] [INFO] [service::compute_actor:284] processing contents of length: 67108860
+[S2] [2020-10-21T19:17:58.670Z] [1548.431885] [INFO] [service::compute_actor:296] [TRACE] [40456] [DATA_PROCESS_END] [process] data len 67108860
+[S2] [2020-10-21T19:17:58.670Z] [1548.431885] [INFO] [service::compute_actor:301] finished processing contents of length: 67108860
+[S2] [2020-10-21T19:17:58.674Z] [1548.435791] [INFO] [service::compute_actor:85] [TRACE] [40456] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:17:58.674Z] [1548.435791] [INFO] [service::compute_actor:111] [TRACE] [40456] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:18:04.284Z] [1554.046021] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53100 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000168
+[S2] [2020-10-21T19:18:04.284Z] [1554.046143] [INFO] [service::compute_actor:73] [TRACE] [40459] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:18:04.284Z] [1554.046143] [INFO] [service::compute_actor:217] [TRACE] [40459] [FILE_READ_START] [process] file: /file_40459.txt
+[S2] [2020-10-21T19:18:04.285Z] [1554.046387] [INFO] [service::compute_actor:231] [TRACE] [40459] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:18:04.285Z] [1554.046387] [INFO] [service::compute_actor:378] Start fetching file /file_40459.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:18:05.159Z] [1554.920410] [INFO] [service::compute_actor:238] [TRACE] [40459] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:18:05.239Z] [1555.000244] [INFO] [service::compute_actor:259] Finish fetching file /file_40459.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:18:05.306Z] [1555.067871] [INFO] [service::compute_actor:279] [TRACE] [40459] [DATA_PROCESS_START] [process] data len 67108860
+[S2] [2020-10-21T19:18:05.306Z] [1555.067993] [INFO] [service::compute_actor:284] processing contents of length: 67108860
+[S2] [2020-10-21T19:18:08.584Z] [1558.346069] [INFO] [service::compute_actor:296] [TRACE] [40459] [DATA_PROCESS_END] [process] data len 67108860
+[S2] [2020-10-21T19:18:08.584Z] [1558.346069] [INFO] [service::compute_actor:301] finished processing contents of length: 67108860
+[S2] [2020-10-21T19:18:08.588Z] [1558.349976] [INFO] [service::compute_actor:85] [TRACE] [40459] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:18:08.588Z] [1558.350098] [INFO] [service::compute_actor:111] [TRACE] [40459] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:18:14.172Z] [1563.933594] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53106 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000236
+[S2] [2020-10-21T19:18:14.172Z] [1563.933716] [INFO] [service::compute_actor:73] [TRACE] [40462] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:18:14.172Z] [1563.933716] [INFO] [service::compute_actor:217] [TRACE] [40462] [FILE_READ_START] [process] file: /file_40462.txt
+[S2] [2020-10-21T19:18:14.172Z] [1563.933838] [INFO] [service::compute_actor:231] [TRACE] [40462] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:18:14.172Z] [1563.933960] [INFO] [service::compute_actor:378] Start fetching file /file_40462.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:18:14.988Z] [1564.749634] [INFO] [service::compute_actor:238] [TRACE] [40462] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:18:15.057Z] [1564.818481] [INFO] [service::compute_actor:259] Finish fetching file /file_40462.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:18:15.134Z] [1564.896118] [INFO] [service::compute_actor:279] [TRACE] [40462] [DATA_PROCESS_START] [process] data len 67108860
+[S2] [2020-10-21T19:18:15.134Z] [1564.896118] [INFO] [service::compute_actor:284] processing contents of length: 67108860
+[S2] [2020-10-21T19:18:18.451Z] [1568.212769] [INFO] [service::compute_actor:296] [TRACE] [40462] [DATA_PROCESS_END] [process] data len 67108860
+[S2] [2020-10-21T19:18:18.451Z] [1568.212891] [INFO] [service::compute_actor:301] finished processing contents of length: 67108860
+[S2] [2020-10-21T19:18:18.455Z] [1568.216797] [INFO] [service::compute_actor:85] [TRACE] [40462] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:18:18.455Z] [1568.216797] [INFO] [service::compute_actor:111] [TRACE] [40462] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:18:24.012Z] [1573.773438] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53112 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000238
+[S2] [2020-10-21T19:18:24.012Z] [1573.773560] [INFO] [service::compute_actor:73] [TRACE] [40465] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:18:24.012Z] [1573.773560] [INFO] [service::compute_actor:217] [TRACE] [40465] [FILE_READ_START] [process] file: /file_40465.txt
+[S2] [2020-10-21T19:18:24.012Z] [1573.773682] [INFO] [service::compute_actor:231] [TRACE] [40465] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:18:24.012Z] [1573.773682] [INFO] [service::compute_actor:378] Start fetching file /file_40465.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:18:24.839Z] [1574.600830] [INFO] [service::compute_actor:238] [TRACE] [40465] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:18:24.894Z] [1574.655273] [INFO] [service::compute_actor:259] Finish fetching file /file_40465.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:18:24.970Z] [1574.731934] [INFO] [service::compute_actor:279] [TRACE] [40465] [DATA_PROCESS_START] [process] data len 67108860
+[S2] [2020-10-21T19:18:24.970Z] [1574.731934] [INFO] [service::compute_actor:284] processing contents of length: 67108860
+[S2] [2020-10-21T19:18:28.284Z] [1578.045776] [INFO] [service::compute_actor:296] [TRACE] [40465] [DATA_PROCESS_END] [process] data len 67108860
+[S2] [2020-10-21T19:18:28.284Z] [1578.045898] [INFO] [service::compute_actor:301] finished processing contents of length: 67108860
+[S2] [2020-10-21T19:18:28.288Z] [1578.049927] [INFO] [service::compute_actor:85] [TRACE] [40465] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:18:28.288Z] [1578.049927] [INFO] [service::compute_actor:111] [TRACE] [40465] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:18:34.746Z] [1584.507935] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53118 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.832522
+[S2] [2020-10-21T19:18:34.746Z] [1584.507935] [INFO] [service::compute_actor:73] [TRACE] [40468] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:18:34.746Z] [1584.508057] [INFO] [service::compute_actor:194] [TRACE] [40468] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:18:34.746Z] [1584.508057] [INFO] [service::compute_actor:198] processing data of length: 67108860
+[S2] [2020-10-21T19:18:38.102Z] [1587.863525] [INFO] [service::compute_actor:210] [TRACE] [40468] [DATA_PROCESS_END] [process] data len 67108860
+[S2] [2020-10-21T19:18:38.102Z] [1587.863525] [INFO] [service::compute_actor:85] [TRACE] [40468] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:18:38.102Z] [1587.863525] [INFO] [service::compute_actor:111] [TRACE] [40468] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:18:44.508Z] [1594.269409] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53122 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.789864
+[S2] [2020-10-21T19:18:44.508Z] [1594.269409] [INFO] [service::compute_actor:73] [TRACE] [40471] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:18:44.508Z] [1594.269531] [INFO] [service::compute_actor:194] [TRACE] [40471] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:18:44.508Z] [1594.269531] [INFO] [service::compute_actor:198] processing data of length: 67108860
+[S2] [2020-10-21T19:18:47.859Z] [1597.620361] [INFO] [service::compute_actor:210] [TRACE] [40471] [DATA_PROCESS_END] [process] data len 67108860
+[S2] [2020-10-21T19:18:47.859Z] [1597.620361] [INFO] [service::compute_actor:85] [TRACE] [40471] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:18:47.859Z] [1597.620483] [INFO] [service::compute_actor:111] [TRACE] [40471] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:18:54.269Z] [1604.030762] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53126 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.782590
+[S2] [2020-10-21T19:18:54.269Z] [1604.030884] [INFO] [service::compute_actor:73] [TRACE] [40474] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:18:54.269Z] [1604.030884] [INFO] [service::compute_actor:194] [TRACE] [40474] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:18:54.269Z] [1604.030884] [INFO] [service::compute_actor:198] processing data of length: 67108860
+[S2] [2020-10-21T19:18:57.897Z] [1607.658325] [INFO] [service::compute_actor:210] [TRACE] [40474] [DATA_PROCESS_END] [process] data len 67108860
+[S2] [2020-10-21T19:18:57.897Z] [1607.658447] [INFO] [service::compute_actor:85] [TRACE] [40474] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:18:57.897Z] [1607.658447] [INFO] [service::compute_actor:111] [TRACE] [40474] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:19:04.393Z] [1614.154663] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53130 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.796392
+[S2] [2020-10-21T19:19:04.393Z] [1614.154663] [INFO] [service::compute_actor:73] [TRACE] [40477] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:19:04.393Z] [1614.154663] [INFO] [service::compute_actor:194] [TRACE] [40477] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:19:04.393Z] [1614.154663] [INFO] [service::compute_actor:198] processing data of length: 67108860
+[S2] [2020-10-21T19:19:07.796Z] [1617.557983] [INFO] [service::compute_actor:210] [TRACE] [40477] [DATA_PROCESS_END] [process] data len 67108860
+[S2] [2020-10-21T19:19:07.796Z] [1617.557983] [INFO] [service::compute_actor:85] [TRACE] [40477] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:19:07.796Z] [1617.558105] [INFO] [service::compute_actor:111] [TRACE] [40477] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:19:14.263Z] [1624.024902] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53134 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.789874
+[S2] [2020-10-21T19:19:14.263Z] [1624.024902] [INFO] [service::compute_actor:73] [TRACE] [40480] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:19:14.263Z] [1624.024902] [INFO] [service::compute_actor:194] [TRACE] [40480] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:19:14.263Z] [1624.024902] [INFO] [service::compute_actor:198] processing data of length: 67108860
+[S2] [2020-10-21T19:19:17.634Z] [1627.395874] [INFO] [service::compute_actor:210] [TRACE] [40480] [DATA_PROCESS_END] [process] data len 67108860
+[S2] [2020-10-21T19:19:17.634Z] [1627.395874] [INFO] [service::compute_actor:85] [TRACE] [40480] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:19:17.634Z] [1627.395874] [INFO] [service::compute_actor:111] [TRACE] [40480] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:22:15.601Z] [1805.362671] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53138 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000200
+[S2] [2020-10-21T19:22:15.601Z] [1805.362793] [INFO] [service::compute_actor:73] [TRACE] [40513] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:22:15.601Z] [1805.362793] [INFO] [service::compute_actor:217] [TRACE] [40513] [FILE_READ_START] [process] file: /file_40513.txt
+[S2] [2020-10-21T19:22:15.601Z] [1805.362915] [INFO] [service::compute_actor:231] [TRACE] [40513] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:22:15.601Z] [1805.362915] [INFO] [service::compute_actor:378] Start fetching file /file_40513.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:22:17.276Z] [1807.037354] [INFO] [service::compute_actor:238] [TRACE] [40513] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:22:17.373Z] [1807.135010] [INFO] [service::compute_actor:259] Finish fetching file /file_40513.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:22:17.496Z] [1807.258057] [INFO] [service::compute_actor:279] [TRACE] [40513] [DATA_PROCESS_START] [process] data len 134217720
+[S2] [2020-10-21T19:22:17.496Z] [1807.258057] [INFO] [service::compute_actor:284] processing contents of length: 134217720
+[S2] [2020-10-21T19:22:24.055Z] [1813.816772] [INFO] [service::compute_actor:296] [TRACE] [40513] [DATA_PROCESS_END] [process] data len 134217720
+[S2] [2020-10-21T19:22:24.055Z] [1813.816772] [INFO] [service::compute_actor:301] finished processing contents of length: 134217720
+[S2] [2020-10-21T19:22:24.063Z] [1813.824707] [INFO] [service::compute_actor:85] [TRACE] [40513] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:22:24.063Z] [1813.824707] [INFO] [service::compute_actor:111] [TRACE] [40513] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:22:29.990Z] [1819.751953] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53144 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000188
+[S2] [2020-10-21T19:22:29.990Z] [1819.752075] [INFO] [service::compute_actor:73] [TRACE] [40516] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:22:29.990Z] [1819.752075] [INFO] [service::compute_actor:217] [TRACE] [40516] [FILE_READ_START] [process] file: /file_40516.txt
+[S2] [2020-10-21T19:22:29.990Z] [1819.752197] [INFO] [service::compute_actor:231] [TRACE] [40516] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:22:29.990Z] [1819.752197] [INFO] [service::compute_actor:378] Start fetching file /file_40516.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:22:31.658Z] [1821.419434] [INFO] [service::compute_actor:238] [TRACE] [40516] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:22:31.769Z] [1821.530762] [INFO] [service::compute_actor:259] Finish fetching file /file_40516.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:22:31.893Z] [1821.655029] [INFO] [service::compute_actor:279] [TRACE] [40516] [DATA_PROCESS_START] [process] data len 134217720
+[S2] [2020-10-21T19:22:31.893Z] [1821.655029] [INFO] [service::compute_actor:284] processing contents of length: 134217720
+[S2] [2020-10-21T19:22:38.339Z] [1828.101196] [INFO] [service::compute_actor:296] [TRACE] [40516] [DATA_PROCESS_END] [process] data len 134217720
+[S2] [2020-10-21T19:22:38.339Z] [1828.101196] [INFO] [service::compute_actor:301] finished processing contents of length: 134217720
+[S2] [2020-10-21T19:22:38.347Z] [1828.109253] [INFO] [service::compute_actor:85] [TRACE] [40516] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:22:38.347Z] [1828.109253] [INFO] [service::compute_actor:111] [TRACE] [40516] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:22:44.280Z] [1834.041260] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53150 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000171
+[S2] [2020-10-21T19:22:44.280Z] [1834.041504] [INFO] [service::compute_actor:73] [TRACE] [40519] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:22:44.280Z] [1834.041504] [INFO] [service::compute_actor:217] [TRACE] [40519] [FILE_READ_START] [process] file: /file_40519.txt
+[S2] [2020-10-21T19:22:44.280Z] [1834.041626] [INFO] [service::compute_actor:231] [TRACE] [40519] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:22:44.280Z] [1834.041748] [INFO] [service::compute_actor:378] Start fetching file /file_40519.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:22:45.916Z] [1835.678223] [INFO] [service::compute_actor:238] [TRACE] [40519] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:22:46.040Z] [1835.801270] [INFO] [service::compute_actor:259] Finish fetching file /file_40519.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:22:46.180Z] [1835.941528] [INFO] [service::compute_actor:279] [TRACE] [40519] [DATA_PROCESS_START] [process] data len 134217720
+[S2] [2020-10-21T19:22:46.180Z] [1835.941650] [INFO] [service::compute_actor:284] processing contents of length: 134217720
+[S2] [2020-10-21T19:22:52.653Z] [1842.415283] [INFO] [service::compute_actor:296] [TRACE] [40519] [DATA_PROCESS_END] [process] data len 134217720
+[S2] [2020-10-21T19:22:52.654Z] [1842.415283] [INFO] [service::compute_actor:301] finished processing contents of length: 134217720
+[S2] [2020-10-21T19:22:52.661Z] [1842.423096] [INFO] [service::compute_actor:85] [TRACE] [40519] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:22:52.661Z] [1842.423096] [INFO] [service::compute_actor:111] [TRACE] [40519] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:22:58.584Z] [1848.346069] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53156 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000156
+[S2] [2020-10-21T19:22:58.584Z] [1848.346191] [INFO] [service::compute_actor:73] [TRACE] [40522] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:22:58.584Z] [1848.346313] [INFO] [service::compute_actor:217] [TRACE] [40522] [FILE_READ_START] [process] file: /file_40522.txt
+[S2] [2020-10-21T19:22:58.585Z] [1848.346436] [INFO] [service::compute_actor:231] [TRACE] [40522] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:22:58.585Z] [1848.346436] [INFO] [service::compute_actor:378] Start fetching file /file_40522.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:23:00.252Z] [1850.013794] [INFO] [service::compute_actor:238] [TRACE] [40522] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:23:00.352Z] [1850.113525] [INFO] [service::compute_actor:259] Finish fetching file /file_40522.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:23:00.469Z] [1850.230835] [INFO] [service::compute_actor:279] [TRACE] [40522] [DATA_PROCESS_START] [process] data len 134217720
+[S2] [2020-10-21T19:23:00.469Z] [1850.230957] [INFO] [service::compute_actor:284] processing contents of length: 134217720
+[S2] [2020-10-21T19:23:07.042Z] [1856.804199] [INFO] [service::compute_actor:296] [TRACE] [40522] [DATA_PROCESS_END] [process] data len 134217720
+[S2] [2020-10-21T19:23:07.042Z] [1856.804199] [INFO] [service::compute_actor:301] finished processing contents of length: 134217720
+[S2] [2020-10-21T19:23:07.050Z] [1856.811890] [INFO] [service::compute_actor:85] [TRACE] [40522] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:23:07.050Z] [1856.811890] [INFO] [service::compute_actor:111] [TRACE] [40522] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:23:12.978Z] [1862.739380] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53162 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000103
+[S2] [2020-10-21T19:23:12.978Z] [1862.739502] [INFO] [service::compute_actor:73] [TRACE] [40525] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:23:12.978Z] [1862.739624] [INFO] [service::compute_actor:217] [TRACE] [40525] [FILE_READ_START] [process] file: /file_40525.txt
+[S2] [2020-10-21T19:23:12.978Z] [1862.739746] [INFO] [service::compute_actor:231] [TRACE] [40525] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:23:12.978Z] [1862.739746] [INFO] [service::compute_actor:378] Start fetching file /file_40525.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:23:14.648Z] [1864.409668] [INFO] [service::compute_actor:238] [TRACE] [40525] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:23:14.756Z] [1864.517578] [INFO] [service::compute_actor:259] Finish fetching file /file_40525.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:23:14.873Z] [1864.634644] [INFO] [service::compute_actor:279] [TRACE] [40525] [DATA_PROCESS_START] [process] data len 134217720
+[S2] [2020-10-21T19:23:14.873Z] [1864.634766] [INFO] [service::compute_actor:284] processing contents of length: 134217720
+[S2] [2020-10-21T19:23:21.393Z] [1871.154541] [INFO] [service::compute_actor:296] [TRACE] [40525] [DATA_PROCESS_END] [process] data len 134217720
+[S2] [2020-10-21T19:23:21.393Z] [1871.154541] [INFO] [service::compute_actor:301] finished processing contents of length: 134217720
+[S2] [2020-10-21T19:23:21.400Z] [1871.162231] [INFO] [service::compute_actor:85] [TRACE] [40525] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:23:21.400Z] [1871.162231] [INFO] [service::compute_actor:111] [TRACE] [40525] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:23:28.998Z] [1878.759399] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53168 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 1.573736
+[S2] [2020-10-21T19:23:28.998Z] [1878.759399] [INFO] [service::compute_actor:73] [TRACE] [40528] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:23:28.998Z] [1878.759521] [INFO] [service::compute_actor:194] [TRACE] [40528] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:23:28.998Z] [1878.759521] [INFO] [service::compute_actor:198] processing data of length: 134217720
+[S2] [2020-10-21T19:23:35.510Z] [1885.271729] [INFO] [service::compute_actor:210] [TRACE] [40528] [DATA_PROCESS_END] [process] data len 134217720
+[S2] [2020-10-21T19:23:35.510Z] [1885.271729] [INFO] [service::compute_actor:85] [TRACE] [40528] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:23:35.510Z] [1885.271851] [INFO] [service::compute_actor:111] [TRACE] [40528] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:23:43.080Z] [1892.841797] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53172 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 1.556681
+[S2] [2020-10-21T19:23:43.080Z] [1892.841797] [INFO] [service::compute_actor:73] [TRACE] [40531] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:23:43.080Z] [1892.841919] [INFO] [service::compute_actor:194] [TRACE] [40531] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:23:43.080Z] [1892.841919] [INFO] [service::compute_actor:198] processing data of length: 134217720
+[S2] [2020-10-21T19:23:49.641Z] [1899.403198] [INFO] [service::compute_actor:210] [TRACE] [40531] [DATA_PROCESS_END] [process] data len 134217720
+[S2] [2020-10-21T19:23:49.641Z] [1899.403198] [INFO] [service::compute_actor:85] [TRACE] [40531] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:23:49.641Z] [1899.403198] [INFO] [service::compute_actor:111] [TRACE] [40531] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:23:57.178Z] [1906.939331] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53176 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 1.591093
+[S2] [2020-10-21T19:23:57.178Z] [1906.939453] [INFO] [service::compute_actor:73] [TRACE] [40534] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:23:57.178Z] [1906.939453] [INFO] [service::compute_actor:194] [TRACE] [40534] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:23:57.178Z] [1906.939453] [INFO] [service::compute_actor:198] processing data of length: 134217720
+[S2] [2020-10-21T19:24:03.823Z] [1913.584961] [INFO] [service::compute_actor:210] [TRACE] [40534] [DATA_PROCESS_END] [process] data len 134217720
+[S2] [2020-10-21T19:24:03.823Z] [1913.585083] [INFO] [service::compute_actor:85] [TRACE] [40534] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:24:03.823Z] [1913.585083] [INFO] [service::compute_actor:111] [TRACE] [40534] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:24:11.442Z] [1921.203369] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53180 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 1.563545
+[S2] [2020-10-21T19:24:11.442Z] [1921.203369] [INFO] [service::compute_actor:73] [TRACE] [40537] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:24:11.442Z] [1921.203491] [INFO] [service::compute_actor:194] [TRACE] [40537] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:24:11.442Z] [1921.203491] [INFO] [service::compute_actor:198] processing data of length: 134217720
+[S2] [2020-10-21T19:24:18.026Z] [1927.787598] [INFO] [service::compute_actor:210] [TRACE] [40537] [DATA_PROCESS_END] [process] data len 134217720
+[S2] [2020-10-21T19:24:18.026Z] [1927.787598] [INFO] [service::compute_actor:85] [TRACE] [40537] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:24:18.026Z] [1927.787598] [INFO] [service::compute_actor:111] [TRACE] [40537] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:24:25.615Z] [1935.376343] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53184 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 1.531016
+[S2] [2020-10-21T19:24:25.615Z] [1935.376343] [INFO] [service::compute_actor:73] [TRACE] [40540] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:24:25.615Z] [1935.376343] [INFO] [service::compute_actor:194] [TRACE] [40540] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:24:25.615Z] [1935.376343] [INFO] [service::compute_actor:198] processing data of length: 134217720
+[S2] [2020-10-21T19:24:32.192Z] [1941.953979] [INFO] [service::compute_actor:210] [TRACE] [40540] [DATA_PROCESS_END] [process] data len 134217720
+[S2] [2020-10-21T19:24:32.192Z] [1941.953979] [INFO] [service::compute_actor:85] [TRACE] [40540] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:24:32.192Z] [1941.953979] [INFO] [service::compute_actor:111] [TRACE] [40540] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:29:18.509Z] [2228.270508] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53188 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000229
+[S2] [2020-10-21T19:29:18.509Z] [2228.270752] [INFO] [service::compute_actor:73] [TRACE] [40573] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:29:18.509Z] [2228.270752] [INFO] [service::compute_actor:217] [TRACE] [40573] [FILE_READ_START] [process] file: /file_40573.txt
+[S2] [2020-10-21T19:29:18.509Z] [2228.270996] [INFO] [service::compute_actor:231] [TRACE] [40573] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:29:18.509Z] [2228.270996] [INFO] [service::compute_actor:378] Start fetching file /file_40573.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:29:21.861Z] [2231.622559] [INFO] [service::compute_actor:238] [TRACE] [40573] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:29:22.059Z] [2231.820312] [INFO] [service::compute_actor:259] Finish fetching file /file_40573.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:29:22.289Z] [2232.051270] [INFO] [service::compute_actor:279] [TRACE] [40573] [DATA_PROCESS_START] [process] data len 268435450
+[S2] [2020-10-21T19:29:22.289Z] [2232.051270] [INFO] [service::compute_actor:284] processing contents of length: 268435450
+[S2] [2020-10-21T19:29:34.995Z] [2244.756836] [INFO] [service::compute_actor:296] [TRACE] [40573] [DATA_PROCESS_END] [process] data len 268435450
+[S2] [2020-10-21T19:29:34.995Z] [2244.757080] [INFO] [service::compute_actor:301] finished processing contents of length: 268435450
+[S2] [2020-10-21T19:29:35.008Z] [2244.769775] [INFO] [service::compute_actor:85] [TRACE] [40573] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:29:35.008Z] [2244.769775] [INFO] [service::compute_actor:111] [TRACE] [40573] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:29:41.512Z] [2251.273682] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53194 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000274
+[S2] [2020-10-21T19:29:41.512Z] [2251.273682] [INFO] [service::compute_actor:73] [TRACE] [40576] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:29:41.512Z] [2251.273682] [INFO] [service::compute_actor:217] [TRACE] [40576] [FILE_READ_START] [process] file: /file_40576.txt
+[S2] [2020-10-21T19:29:41.512Z] [2251.273926] [INFO] [service::compute_actor:231] [TRACE] [40576] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:29:41.512Z] [2251.273926] [INFO] [service::compute_actor:378] Start fetching file /file_40576.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:29:44.745Z] [2254.507080] [INFO] [service::compute_actor:238] [TRACE] [40576] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:29:44.937Z] [2254.698975] [INFO] [service::compute_actor:259] Finish fetching file /file_40576.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:29:45.162Z] [2254.923828] [INFO] [service::compute_actor:279] [TRACE] [40576] [DATA_PROCESS_START] [process] data len 268435450
+[S2] [2020-10-21T19:29:45.162Z] [2254.924072] [INFO] [service::compute_actor:284] processing contents of length: 268435450
+[S2] [2020-10-21T19:29:57.794Z] [2267.556152] [INFO] [service::compute_actor:296] [TRACE] [40576] [DATA_PROCESS_END] [process] data len 268435450
+[S2] [2020-10-21T19:29:57.794Z] [2267.556152] [INFO] [service::compute_actor:301] finished processing contents of length: 268435450
+[S2] [2020-10-21T19:29:57.807Z] [2267.569336] [INFO] [service::compute_actor:85] [TRACE] [40576] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:29:57.808Z] [2267.569336] [INFO] [service::compute_actor:111] [TRACE] [40576] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:30:04.200Z] [2273.961670] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53200 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000254
+[S2] [2020-10-21T19:30:04.200Z] [2273.961670] [INFO] [service::compute_actor:73] [TRACE] [40579] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:30:04.200Z] [2273.961670] [INFO] [service::compute_actor:217] [TRACE] [40579] [FILE_READ_START] [process] file: /file_40579.txt
+[S2] [2020-10-21T19:30:04.200Z] [2273.961914] [INFO] [service::compute_actor:231] [TRACE] [40579] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:30:04.200Z] [2273.961914] [INFO] [service::compute_actor:378] Start fetching file /file_40579.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:30:07.392Z] [2277.153809] [INFO] [service::compute_actor:238] [TRACE] [40579] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:30:07.587Z] [2277.348877] [INFO] [service::compute_actor:259] Finish fetching file /file_40579.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:30:07.828Z] [2277.589355] [INFO] [service::compute_actor:279] [TRACE] [40579] [DATA_PROCESS_START] [process] data len 268435450
+[S2] [2020-10-21T19:30:07.828Z] [2277.589600] [INFO] [service::compute_actor:284] processing contents of length: 268435450
+[S2] [2020-10-21T19:30:20.436Z] [2290.197510] [INFO] [service::compute_actor:296] [TRACE] [40579] [DATA_PROCESS_END] [process] data len 268435450
+[S2] [2020-10-21T19:30:20.436Z] [2290.197510] [INFO] [service::compute_actor:301] finished processing contents of length: 268435450
+[S2] [2020-10-21T19:30:20.449Z] [2290.210938] [INFO] [service::compute_actor:85] [TRACE] [40579] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:30:20.449Z] [2290.210938] [INFO] [service::compute_actor:111] [TRACE] [40579] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:30:26.808Z] [2296.570068] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53206 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000194
+[S2] [2020-10-21T19:30:26.808Z] [2296.570312] [INFO] [service::compute_actor:73] [TRACE] [40582] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:30:26.808Z] [2296.570312] [INFO] [service::compute_actor:217] [TRACE] [40582] [FILE_READ_START] [process] file: /file_40582.txt
+[S2] [2020-10-21T19:30:26.809Z] [2296.570312] [INFO] [service::compute_actor:231] [TRACE] [40582] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:30:26.809Z] [2296.570557] [INFO] [service::compute_actor:378] Start fetching file /file_40582.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:30:30.046Z] [2299.808105] [INFO] [service::compute_actor:238] [TRACE] [40582] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:30:30.236Z] [2299.997559] [INFO] [service::compute_actor:259] Finish fetching file /file_40582.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:30:30.468Z] [2300.229736] [INFO] [service::compute_actor:279] [TRACE] [40582] [DATA_PROCESS_START] [process] data len 268435450
+[S2] [2020-10-21T19:30:30.468Z] [2300.229736] [INFO] [service::compute_actor:284] processing contents of length: 268435450
+[S2] [2020-10-21T19:30:43.133Z] [2312.894775] [INFO] [service::compute_actor:296] [TRACE] [40582] [DATA_PROCESS_END] [process] data len 268435450
+[S2] [2020-10-21T19:30:43.133Z] [2312.895020] [INFO] [service::compute_actor:301] finished processing contents of length: 268435450
+[S2] [2020-10-21T19:30:43.146Z] [2312.907471] [INFO] [service::compute_actor:85] [TRACE] [40582] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:30:43.146Z] [2312.907471] [INFO] [service::compute_actor:111] [TRACE] [40582] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:30:49.577Z] [2319.339355] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53212 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000166
+[S2] [2020-10-21T19:30:49.578Z] [2319.339355] [INFO] [service::compute_actor:73] [TRACE] [40585] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:30:49.578Z] [2319.339355] [INFO] [service::compute_actor:217] [TRACE] [40585] [FILE_READ_START] [process] file: /file_40585.txt
+[S2] [2020-10-21T19:30:49.578Z] [2319.339600] [INFO] [service::compute_actor:231] [TRACE] [40585] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:30:49.578Z] [2319.339600] [INFO] [service::compute_actor:378] Start fetching file /file_40585.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:30:52.855Z] [2322.616699] [INFO] [service::compute_actor:238] [TRACE] [40585] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:30:53.042Z] [2322.803711] [INFO] [service::compute_actor:259] Finish fetching file /file_40585.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:30:53.275Z] [2323.036377] [INFO] [service::compute_actor:279] [TRACE] [40585] [DATA_PROCESS_START] [process] data len 268435450
+[S2] [2020-10-21T19:30:53.275Z] [2323.036377] [INFO] [service::compute_actor:284] processing contents of length: 268435450
+[S2] [2020-10-21T19:31:05.858Z] [2335.619873] [INFO] [service::compute_actor:296] [TRACE] [40585] [DATA_PROCESS_END] [process] data len 268435450
+[S2] [2020-10-21T19:31:05.858Z] [2335.620117] [INFO] [service::compute_actor:301] finished processing contents of length: 268435450
+[S2] [2020-10-21T19:31:05.872Z] [2335.633545] [INFO] [service::compute_actor:85] [TRACE] [40585] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:31:05.872Z] [2335.633545] [INFO] [service::compute_actor:111] [TRACE] [40585] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:31:17.895Z] [2347.656982] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53218 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 3.098122
+[S2] [2020-10-21T19:31:17.895Z] [2347.656982] [INFO] [service::compute_actor:73] [TRACE] [40588] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:31:17.895Z] [2347.656982] [INFO] [service::compute_actor:194] [TRACE] [40588] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:31:17.895Z] [2347.656982] [INFO] [service::compute_actor:198] processing data of length: 268435450
+[S2] [2020-10-21T19:31:31.314Z] [2361.075928] [INFO] [service::compute_actor:210] [TRACE] [40588] [DATA_PROCESS_END] [process] data len 268435450
+[S2] [2020-10-21T19:31:31.314Z] [2361.075928] [INFO] [service::compute_actor:85] [TRACE] [40588] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:31:31.314Z] [2361.075928] [INFO] [service::compute_actor:111] [TRACE] [40588] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:31:41.101Z] [2370.863037] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53222 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 3.083863
+[S2] [2020-10-21T19:31:41.101Z] [2370.863037] [INFO] [service::compute_actor:73] [TRACE] [40591] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:31:41.101Z] [2370.863037] [INFO] [service::compute_actor:194] [TRACE] [40591] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:31:41.101Z] [2370.863037] [INFO] [service::compute_actor:198] processing data of length: 268435450
+[S2] [2020-10-21T19:31:53.831Z] [2383.592773] [INFO] [service::compute_actor:210] [TRACE] [40591] [DATA_PROCESS_END] [process] data len 268435450
+[S2] [2020-10-21T19:31:53.831Z] [2383.593018] [INFO] [service::compute_actor:85] [TRACE] [40591] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:31:53.831Z] [2383.593018] [INFO] [service::compute_actor:111] [TRACE] [40591] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:32:03.450Z] [2393.211670] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53226 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 3.027000
+[S2] [2020-10-21T19:32:03.450Z] [2393.211670] [INFO] [service::compute_actor:73] [TRACE] [40594] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:32:03.450Z] [2393.211670] [INFO] [service::compute_actor:194] [TRACE] [40594] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:32:03.450Z] [2393.211670] [INFO] [service::compute_actor:198] processing data of length: 268435450
+[S2] [2020-10-21T19:32:16.271Z] [2406.032715] [INFO] [service::compute_actor:210] [TRACE] [40594] [DATA_PROCESS_END] [process] data len 268435450
+[S2] [2020-10-21T19:32:16.271Z] [2406.032715] [INFO] [service::compute_actor:85] [TRACE] [40594] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:32:16.271Z] [2406.032959] [INFO] [service::compute_actor:111] [TRACE] [40594] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:32:25.888Z] [2415.649658] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53230 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 3.072315
+[S2] [2020-10-21T19:32:25.888Z] [2415.649658] [INFO] [service::compute_actor:73] [TRACE] [40597] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:32:25.888Z] [2415.649658] [INFO] [service::compute_actor:194] [TRACE] [40597] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:32:25.888Z] [2415.649658] [INFO] [service::compute_actor:198] processing data of length: 268435450
+[S2] [2020-10-21T19:32:38.553Z] [2428.315186] [INFO] [service::compute_actor:210] [TRACE] [40597] [DATA_PROCESS_END] [process] data len 268435450
+[S2] [2020-10-21T19:32:38.554Z] [2428.315430] [INFO] [service::compute_actor:85] [TRACE] [40597] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:32:38.554Z] [2428.315430] [INFO] [service::compute_actor:111] [TRACE] [40597] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:32:48.163Z] [2437.924805] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53234 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 3.074170
+[S2] [2020-10-21T19:32:48.163Z] [2437.924805] [INFO] [service::compute_actor:73] [TRACE] [40600] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:32:48.163Z] [2437.924805] [INFO] [service::compute_actor:194] [TRACE] [40600] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:32:48.163Z] [2437.924805] [INFO] [service::compute_actor:198] processing data of length: 268435450
+[S2] [2020-10-21T19:33:01.406Z] [2451.167480] [INFO] [service::compute_actor:210] [TRACE] [40600] [DATA_PROCESS_END] [process] data len 268435450
+[S2] [2020-10-21T19:33:01.406Z] [2451.167480] [INFO] [service::compute_actor:85] [TRACE] [40600] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:33:01.406Z] [2451.167480] [INFO] [service::compute_actor:111] [TRACE] [40600] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:41:42.976Z] [2972.737549] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53238 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000288
+[S2] [2020-10-21T19:41:42.976Z] [2972.737793] [INFO] [service::compute_actor:73] [TRACE] [40633] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:41:42.976Z] [2972.737793] [INFO] [service::compute_actor:217] [TRACE] [40633] [FILE_READ_START] [process] file: /file_40633.txt
+[S2] [2020-10-21T19:41:42.976Z] [2972.738037] [INFO] [service::compute_actor:231] [TRACE] [40633] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:41:42.976Z] [2972.738037] [INFO] [service::compute_actor:378] Start fetching file /file_40633.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:41:49.390Z] [2979.151367] [INFO] [service::compute_actor:238] [TRACE] [40633] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:41:49.763Z] [2979.524902] [INFO] [service::compute_actor:259] Finish fetching file /file_40633.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:41:50.133Z] [2979.895020] [INFO] [service::compute_actor:279] [TRACE] [40633] [DATA_PROCESS_START] [process] data len 536870910
+[S2] [2020-10-21T19:41:50.133Z] [2979.895020] [INFO] [service::compute_actor:284] processing contents of length: 536870910
+[S2] [2020-10-21T19:42:14.993Z] [3004.755127] [INFO] [service::compute_actor:296] [TRACE] [40633] [DATA_PROCESS_END] [process] data len 536870910
+[S2] [2020-10-21T19:42:14.993Z] [3004.755127] [INFO] [service::compute_actor:301] finished processing contents of length: 536870910
+[S2] [2020-10-21T19:42:15.019Z] [3004.780273] [INFO] [service::compute_actor:85] [TRACE] [40633] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:42:15.019Z] [3004.780273] [INFO] [service::compute_actor:111] [TRACE] [40633] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:42:22.484Z] [3012.245361] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53244 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000238
+[S2] [2020-10-21T19:42:22.484Z] [3012.245361] [INFO] [service::compute_actor:73] [TRACE] [40636] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:42:22.484Z] [3012.245361] [INFO] [service::compute_actor:217] [TRACE] [40636] [FILE_READ_START] [process] file: /file_40636.txt
+[S2] [2020-10-21T19:42:22.484Z] [3012.245605] [INFO] [service::compute_actor:231] [TRACE] [40636] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:42:22.484Z] [3012.245605] [INFO] [service::compute_actor:378] Start fetching file /file_40636.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:42:28.814Z] [3018.576172] [INFO] [service::compute_actor:238] [TRACE] [40636] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:42:29.188Z] [3018.950195] [INFO] [service::compute_actor:259] Finish fetching file /file_40636.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:42:29.562Z] [3019.323242] [INFO] [service::compute_actor:279] [TRACE] [40636] [DATA_PROCESS_START] [process] data len 536870910
+[S2] [2020-10-21T19:42:29.562Z] [3019.323242] [INFO] [service::compute_actor:284] processing contents of length: 536870910
+[S2] [2020-10-21T19:42:54.593Z] [3044.354492] [INFO] [service::compute_actor:296] [TRACE] [40636] [DATA_PROCESS_END] [process] data len 536870910
+[S2] [2020-10-21T19:42:54.593Z] [3044.354492] [INFO] [service::compute_actor:301] finished processing contents of length: 536870910
+[S2] [2020-10-21T19:42:54.608Z] [3044.369385] [INFO] [service::compute_actor:85] [TRACE] [40636] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:42:54.608Z] [3044.369385] [INFO] [service::compute_actor:111] [TRACE] [40636] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:43:02.223Z] [3051.984375] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53250 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000219
+[S2] [2020-10-21T19:43:02.223Z] [3051.984375] [INFO] [service::compute_actor:73] [TRACE] [40639] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:43:02.223Z] [3051.984375] [INFO] [service::compute_actor:217] [TRACE] [40639] [FILE_READ_START] [process] file: /file_40639.txt
+[S2] [2020-10-21T19:43:02.223Z] [3051.984619] [INFO] [service::compute_actor:231] [TRACE] [40639] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:43:02.223Z] [3051.984619] [INFO] [service::compute_actor:378] Start fetching file /file_40639.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:43:08.983Z] [3058.744629] [INFO] [service::compute_actor:238] [TRACE] [40639] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:43:09.345Z] [3059.106445] [INFO] [service::compute_actor:259] Finish fetching file /file_40639.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:43:09.698Z] [3059.459961] [INFO] [service::compute_actor:279] [TRACE] [40639] [DATA_PROCESS_START] [process] data len 536870910
+[S2] [2020-10-21T19:43:09.698Z] [3059.459961] [INFO] [service::compute_actor:284] processing contents of length: 536870910
+[S2] [2020-10-21T19:43:34.039Z] [3083.800537] [INFO] [service::compute_actor:296] [TRACE] [40639] [DATA_PROCESS_END] [process] data len 536870910
+[S2] [2020-10-21T19:43:34.039Z] [3083.800537] [INFO] [service::compute_actor:301] finished processing contents of length: 536870910
+[S2] [2020-10-21T19:43:34.054Z] [3083.815430] [INFO] [service::compute_actor:85] [TRACE] [40639] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:43:34.054Z] [3083.815430] [INFO] [service::compute_actor:111] [TRACE] [40639] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:43:41.405Z] [3091.166504] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53256 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000224
+[S2] [2020-10-21T19:43:41.405Z] [3091.166748] [INFO] [service::compute_actor:73] [TRACE] [40642] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:43:41.405Z] [3091.166748] [INFO] [service::compute_actor:217] [TRACE] [40642] [FILE_READ_START] [process] file: /file_40642.txt
+[S2] [2020-10-21T19:43:41.405Z] [3091.166748] [INFO] [service::compute_actor:231] [TRACE] [40642] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:43:41.405Z] [3091.166748] [INFO] [service::compute_actor:378] Start fetching file /file_40642.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:43:47.813Z] [3097.574951] [INFO] [service::compute_actor:238] [TRACE] [40642] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:43:48.179Z] [3097.941162] [INFO] [service::compute_actor:259] Finish fetching file /file_40642.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:43:48.578Z] [3098.339355] [INFO] [service::compute_actor:279] [TRACE] [40642] [DATA_PROCESS_START] [process] data len 536870910
+[S2] [2020-10-21T19:43:48.578Z] [3098.339355] [INFO] [service::compute_actor:284] processing contents of length: 536870910
+[S2] [2020-10-21T19:44:13.409Z] [3123.170410] [INFO] [service::compute_actor:296] [TRACE] [40642] [DATA_PROCESS_END] [process] data len 536870910
+[S2] [2020-10-21T19:44:13.409Z] [3123.170410] [INFO] [service::compute_actor:301] finished processing contents of length: 536870910
+[S2] [2020-10-21T19:44:13.423Z] [3123.185059] [INFO] [service::compute_actor:85] [TRACE] [40642] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:44:13.423Z] [3123.185303] [INFO] [service::compute_actor:111] [TRACE] [40642] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:44:21.299Z] [3131.061035] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53262 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 0.000209
+[S2] [2020-10-21T19:44:21.299Z] [3131.061279] [INFO] [service::compute_actor:73] [TRACE] [40645] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:44:21.299Z] [3131.061279] [INFO] [service::compute_actor:217] [TRACE] [40645] [FILE_READ_START] [process] file: /file_40645.txt
+[S2] [2020-10-21T19:44:21.300Z] [3131.061523] [INFO] [service::compute_actor:231] [TRACE] [40645] [FILE_FETCH_START] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:44:21.300Z] [3131.061523] [INFO] [service::compute_actor:378] Start fetching file /file_40645.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:44:27.806Z] [3137.568115] [INFO] [service::compute_actor:238] [TRACE] [40645] [FILE_FETCH_END] [process] http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:44:28.179Z] [3137.940674] [INFO] [service::compute_actor:259] Finish fetching file /file_40645.txt, from http://192.168.33.20:82/service/1/getdata
+[S2] [2020-10-21T19:44:28.581Z] [3138.342529] [INFO] [service::compute_actor:279] [TRACE] [40645] [DATA_PROCESS_START] [process] data len 536870910
+[S2] [2020-10-21T19:44:28.581Z] [3138.342529] [INFO] [service::compute_actor:284] processing contents of length: 536870910
+[S2] [2020-10-21T19:44:52.991Z] [3162.753174] [INFO] [service::compute_actor:296] [TRACE] [40645] [DATA_PROCESS_END] [process] data len 536870910
+[S2] [2020-10-21T19:44:52.991Z] [3162.753174] [INFO] [service::compute_actor:301] finished processing contents of length: 536870910
+[S2] [2020-10-21T19:44:53.006Z] [3162.768311] [INFO] [service::compute_actor:85] [TRACE] [40645] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:44:53.006Z] [3162.768311] [INFO] [service::compute_actor:111] [TRACE] [40645] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:45:06.914Z] [3176.675537] [INFO] [service::compute_actor:73] [TRACE] [40648] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:45:06.914Z] [3176.675537] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53268 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 6.035869
+[S2] [2020-10-21T19:45:06.914Z] [3176.675781] [INFO] [service::compute_actor:194] [TRACE] [40648] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:45:06.914Z] [3176.675781] [INFO] [service::compute_actor:198] processing data of length: 536870910
+[S2] [2020-10-21T19:45:33.129Z] [3202.890625] [INFO] [service::compute_actor:210] [TRACE] [40648] [DATA_PROCESS_END] [process] data len 536870910
+[S2] [2020-10-21T19:45:33.129Z] [3202.890625] [INFO] [service::compute_actor:85] [TRACE] [40648] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:45:33.129Z] [3202.890625] [INFO] [service::compute_actor:111] [TRACE] [40648] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:45:47.042Z] [3216.803955] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53272 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 6.070975
+[S2] [2020-10-21T19:45:47.042Z] [3216.803955] [INFO] [service::compute_actor:73] [TRACE] [40651] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:45:47.042Z] [3216.803955] [INFO] [service::compute_actor:194] [TRACE] [40651] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:45:47.042Z] [3216.803955] [INFO] [service::compute_actor:198] processing data of length: 536870910
+[S2] [2020-10-21T19:46:11.568Z] [3241.329590] [INFO] [service::compute_actor:210] [TRACE] [40651] [DATA_PROCESS_END] [process] data len 536870910
+[S2] [2020-10-21T19:46:11.568Z] [3241.329590] [INFO] [service::compute_actor:85] [TRACE] [40651] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:46:11.568Z] [3241.329590] [INFO] [service::compute_actor:111] [TRACE] [40651] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:46:26.777Z] [3256.538818] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53276 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 6.350161
+[S2] [2020-10-21T19:46:26.777Z] [3256.539062] [INFO] [service::compute_actor:73] [TRACE] [40654] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:46:26.777Z] [3256.539062] [INFO] [service::compute_actor:194] [TRACE] [40654] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:46:26.777Z] [3256.539062] [INFO] [service::compute_actor:198] processing data of length: 536870910
+[S2] [2020-10-21T19:46:52.866Z] [3282.627930] [INFO] [service::compute_actor:210] [TRACE] [40654] [DATA_PROCESS_END] [process] data len 536870910
+[S2] [2020-10-21T19:46:52.866Z] [3282.627930] [INFO] [service::compute_actor:85] [TRACE] [40654] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:46:52.866Z] [3282.627930] [INFO] [service::compute_actor:111] [TRACE] [40654] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:47:06.732Z] [3296.493652] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53280 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 6.062468
+[S2] [2020-10-21T19:47:06.732Z] [3296.493652] [INFO] [service::compute_actor:73] [TRACE] [40657] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:47:06.732Z] [3296.493652] [INFO] [service::compute_actor:194] [TRACE] [40657] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:47:06.732Z] [3296.493652] [INFO] [service::compute_actor:198] processing data of length: 536870910
+[S2] [2020-10-21T19:47:31.895Z] [3321.656738] [INFO] [service::compute_actor:210] [TRACE] [40657] [DATA_PROCESS_END] [process] data len 536870910
+[S2] [2020-10-21T19:47:31.895Z] [3321.656738] [INFO] [service::compute_actor:85] [TRACE] [40657] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:47:31.895Z] [3321.656738] [INFO] [service::compute_actor:111] [TRACE] [40657] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
+[S2] [2020-10-21T19:47:46.022Z] [3335.783447] [INFO] [actix_web::middleware::logger:271] 127.0.0.1:53284 "POST /service/2/docompute HTTP/1.1" 200 2 "-" "-" 6.110666
+[S2] [2020-10-21T19:47:46.022Z] [3335.783447] [INFO] [service::compute_actor:73] [TRACE] [40660] [COMPUTE_START] [process]
+[S2] [2020-10-21T19:47:46.022Z] [3335.783447] [INFO] [service::compute_actor:194] [TRACE] [40660] [DATA_PROCESS_START] [process]
+[S2] [2020-10-21T19:47:46.022Z] [3335.783447] [INFO] [service::compute_actor:198] processing data of length: 536870910
+[S2] [2020-10-21T19:48:12.390Z] [3362.152100] [INFO] [service::compute_actor:210] [TRACE] [40660] [DATA_PROCESS_END] [process] data len 536870910
+[S2] [2020-10-21T19:48:12.390Z] [3362.152100] [INFO] [service::compute_actor:85] [TRACE] [40660] [COMPUTE_STOP] [process]
+[S2] [2020-10-21T19:48:12.390Z] [3362.152100] [INFO] [service::compute_actor:111] [TRACE] [40660] [CALL_FRONTEND] http://192.168.33.20:82/service/0/stop
