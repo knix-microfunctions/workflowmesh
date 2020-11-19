@@ -1,4 +1,4 @@
 # workflowmesh
-Leveraging Service Meshes for Accelerating Serverless Workflows (KubeCon CloudNativeCon NA 2020)
+[Leveraging Service Meshes for Accelerating Serverless Workflows (KubeCon CloudNativeCon NA 2020)](https://sched.co/ekEe)
 
 
