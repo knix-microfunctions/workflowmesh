@@ -1,4 +1,8 @@
 #!/bin/sh
+set -ex
+
+./get_envoy.sh
+
 cd ../service
 cargo build --release
 cd -

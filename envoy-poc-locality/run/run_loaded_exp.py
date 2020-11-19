@@ -21,8 +21,8 @@ delay_between_requests = 0.2
 base_request_object = {"request_id": "", "pass_data": False, "data": "", "filename": "", "size": 167772160, "loops": 16, "terminal_service_number": 2,
                        "source_service_number": 0, "source_service_ip": "", "source_service_port": 0, "frontend_ip": "", "service_ips": ""}
 
-local_url = "http://slfu44:82/service/0/start"
-remote_url = "http://slfu44:82/service/0/start"
+local_url = "http://host1:82/service/0/start"
+remote_url = "http://host1:82/service/0/start"
 
 
 def make_request(request_id, filesize, islocal, isfileref):
